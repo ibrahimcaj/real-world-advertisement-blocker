@@ -40,7 +40,7 @@ export async function getStoredDirHandle(): Promise<FileSystemDirectoryHandle | 
   }
 }
 
- so they travel with the images
+// labels live in the folder so they travel with the images
 export async function readLabelsFromDir(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dir: any
