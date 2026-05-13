@@ -86,7 +86,51 @@ export function AppSidebar({
           <div className="p-4 text-center text-xs text-muted-foreground">
             Open a folder to start
           </div>
-        ) : null}
+        ) : (
+          <div className="py-1">
+            {images.map((img, index) => {
+              const status = getStatus(img);
+              const completed = status === "completed";
+              return (
+                <button
+                  key={img.id}
+                  onClick={() => onSelectImage(index)}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 px-2.5 py-2 text-left transition-colors outline-none",
+                    "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring",
+                    currentIndex === index
+                      ? "bg-accent"
+                      : "hover:bg-accent/50"
+                  )}
+                >
+                  {/* fade done items so unfinished ones stand out */}
+                  <div className={cn(
+                    "w-10 h-9 rounded overflow-hidden shrink-0 bg-muted",
+                    
+                  )}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className={cn(
+                      "text-xs truncate font-medium leading-tight",
+                      currentIndex === index
+                        ? "text-accent-foreground"
+                        : completed ? "text-muted-foreground/50" : "text-foreground"
+                    )}>
+                      {img.filename}
+                    </div>
+                    {false && (
+                      <div className={cn("text-[10px] leading-tight mt-0.5", STATUS_TEXT_CLASSES[status])}>
+                        {STATUS_LABEL[status]}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </aside>
   );
