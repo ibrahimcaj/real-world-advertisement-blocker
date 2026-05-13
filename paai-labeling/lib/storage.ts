@@ -28,7 +28,7 @@ export async function getStoredDirHandle(): Promise<FileSystemDirectoryHandle | 
   return new Promise((resolve, reject) => {
     const tx = db.transaction("handles", "readonly");
     const req = tx.objectStore("handles").get("dir");
-    req.onsuccess = () => { db.close(); resolve(req.result); };
+    req.onsuccess = () => { db.close(); resolve(req.result ?? null); };
     req.onerror = () => { db.close(); reject(req.error); };
   });
 }
