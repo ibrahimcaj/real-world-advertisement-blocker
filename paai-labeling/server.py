@@ -35,7 +35,26 @@ def status():
 async def predict(file: UploadFile = File(...)):
     if model is None:
         return JSONResponse({"error": "no model loaded"}, status_code=503)
+
     img_bytes = await file.read()
-    img = Image.open(io.BytesIO(img_bytes))
+    img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+
+    # ultralytics returns normalized xyxy boxes directly
     results = model(img, verbose=False)[0]
-    return {"detections": []}
+    detections = []
+    for box in results.boxes:
+        x1, y1, x2, y2 = box.xyxyn[0].tolist()
+        detections.append({
+            "box": [
+                round(x1, 4), round(y1, 4),
+                round(x2, 4), round(y2, 4),
+            ],
+            "class_id": int(box.cls[0]),
+            "confidence": round(float(box.conf[0]), 3),
+        })
+
+    return {"detections": detections}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
