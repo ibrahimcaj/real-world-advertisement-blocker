@@ -23,3 +23,7 @@ def load_model():
     return None, None
 
 model, model_path = load_model()
+
+@app.get("/status")
+def status():
+    return {"loaded": model is not None, "model": model_path}
