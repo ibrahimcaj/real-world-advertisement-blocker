@@ -7,6 +7,7 @@ import io
 
 app = FastAPI()
 
+# allow next.js dev server to call us
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,6 +16,7 @@ app.add_middleware(
 )
 
 def load_model():
+    # ultralytics handles .pt natively including nms and postprocessing
     matches = glob.glob("models/*.pt")
     if matches:
         from ultralytics import YOLO
@@ -37,14 +39,22 @@ async def predict(file: UploadFile = File(...)):
     img_bytes = await file.read()
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
 
+    # ultralytics returns normalized xyxy boxes directly
     results = model(img, verbose=False)[0]
     detections = []
     for box in results.boxes:
         x1, y1, x2, y2 = box.xyxyn[0].tolist()
         detections.append({
-            "box": [round(x1,4), round(y1,4), round(x2,4), round(y2,4)],
+            "box": [
+                round(x1, 4), round(y1, 4),
+                round(x2, 4), round(y2, 4),
+            ],
             "class_id": int(box.cls[0]),
             "confidence": round(float(box.conf[0]), 3),
         })
 
     return {"detections": detections}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
