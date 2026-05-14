@@ -106,7 +106,7 @@ export function AppSidebar({
                   {/* fade done items so unfinished ones stand out */}
                   <div className={cn(
                     "w-10 h-9 rounded overflow-hidden shrink-0 bg-muted",
-                    
+                    completed && currentIndex !== index && "opacity-40"
                   )}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={img.url} alt="" className="w-full h-full object-cover" />
