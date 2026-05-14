@@ -1,3 +1,4 @@
+import glob
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,7 +13,13 @@ app.add_middleware(
 )
 
 def load_model():
-    from ultralytics import YOLO
-    return YOLO("models/best.pt"), "models/best.pt"
+    # ultralytics handles .pt natively including nms and postprocessing
+    matches = glob.glob("models/*.pt")
+    if matches:
+        from ultralytics import YOLO
+        path = matches[0]
+        print(f"loading model: {path}")
+        return YOLO(path), path
+    return None, None
 
 model, model_path = load_model()
