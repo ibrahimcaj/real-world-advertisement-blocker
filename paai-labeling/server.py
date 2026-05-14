@@ -10,3 +10,9 @@ app.add_middleware(
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
+
+def load_model():
+    from ultralytics import YOLO
+    return YOLO("models/best.pt"), "models/best.pt"
+
+model, model_path = load_model()
