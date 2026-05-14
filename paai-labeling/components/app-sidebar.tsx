@@ -120,7 +120,7 @@ export function AppSidebar({
                     )}>
                       {img.filename}
                     </div>
-                    {false && (
+                    {STATUS_LABEL[status] && (
                       <div className={cn("text-[10px] leading-tight mt-0.5", STATUS_TEXT_CLASSES[status])}>
                         {STATUS_LABEL[status]}
                       </div>
