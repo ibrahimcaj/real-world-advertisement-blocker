@@ -242,3 +242,16 @@ export function LabelingCanvas({
               strokeWidth="1.5" strokeLinejoin="round" />
           </svg>
         )}
+
+        {activeBounds && ALL_EDGES.filter(e => labels[e] !== undefined).map(edge => {
+          const { x, y } = toScreen(labels[edge]!, activeBounds);
+          return (
+            <div key={edge} className="absolute pointer-events-none"
+              style={{ zIndex:10, left:x, top:y, transform:"translate(-50%,-50%)" }}>
+              <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center shadow-lg"
+                style={{ backgroundColor:EDGE_COLORS[edge], borderColor:"rgba(255,255,255,0.8)" }}>
+                <span className="text-[8px] font-bold text-white leading-none">{EDGE_LABEL[edge]}</span>
+              </div>
+            </div>
+          );
+        })}
