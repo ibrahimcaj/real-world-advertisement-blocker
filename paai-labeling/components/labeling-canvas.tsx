@@ -203,8 +203,32 @@ export function LabelingCanvas({
     ? (cropDrag==="top"||cropDrag==="bottom" ? "cursor-ns-resize" : "cursor-ew-resize")
     : mode === "label" ? "cursor-crosshair" : "cursor-default";
 
-
-  return <div ref={containerRef} className="absolute inset-0 select-none cursor-crosshair"
-    onMouseDown={e=>e.preventDefault()} onClick={onClick} onMouseMove={onMouseMove}
-    onMouseLeave={()=>{if(!cropDrag)setGhost(null);}} />;
-}
+  return (
+    <div
+      ref={containerRef}
+      className={`absolute inset-0 select-none ${cursor}`}
+      onMouseDown={e => e.preventDefault()}
+      onClick={onClick}
+      onMouseMove={onMouseMove}
+      onMouseLeave={() => { if (!cropDrag) setGhost(null); }}
+    >
+      {/* clip hides gray bars outside the zoomed region */}
+      <div
+        className="absolute inset-0"
+        style={zoom ? { clipPath: `inset(${zoom.insetY}px ${zoom.insetX}px)` } : undefined}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={imgRef}
+          src={imageUrl}
+          alt="Labeling target"
+          className="absolute inset-0 w-full h-full object-contain"
+          style={zoom ? {
+            transformOrigin: `${zoom.ox}px ${zoom.oy}px`,
+            transform: `scale(${zoom.s}) translate(${zoom.tx}px, ${zoom.ty}px)`,
+          } : undefined}
+          onLoad={recalc}
+          onDragStart={e => e.preventDefault()}
+          draggable={false}
+        />
+      </div>
