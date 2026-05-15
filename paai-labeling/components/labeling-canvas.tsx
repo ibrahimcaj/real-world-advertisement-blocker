@@ -21,7 +21,6 @@ export function LabelingCanvas({ imageUrl, labels, onLabelChange, mode, crop, on
   const [cropDrag, setCropDrag] = useState<EdgeKey | null>(null);
   const dragBoundsRef = useRef<Bounds | null>(null);
 
-  // stable ref avoids observer reattaching every render
   const recalc = useCallback(() => {
     const c = containerRef.current, img = imgRef.current;
     if (!c || !img || !img.naturalWidth || !img.naturalHeight) return;
@@ -29,10 +28,26 @@ export function LabelingCanvas({ imageUrl, labels, onLabelChange, mode, crop, on
     if (!cW || !cH) return;
     const iA = img.naturalWidth / img.naturalHeight, cA = cW / cH;
     let imgW: number, imgH: number, imgLeft: number, imgTop: number;
-    // object contain letterbox math so dots land on actual pixels
-    if (iA > cA) { imgW=cW; imgH=cW/iA; imgLeft=0;            imgTop=(cH-imgH)/2; }
-    else         { imgH=cH; imgW=cH*iA; imgLeft=(cW-imgW)/2;  imgTop=0;           }
+    if (iA > cA) { imgW=cW; imgH=cW/iA; imgLeft=0; imgTop=(cH-imgH)/2; }
+    else         { imgH=cH; imgW=cH*iA; imgLeft=(cW-imgW)/2; imgTop=0; }
     setBounds({ imgW, imgH, imgLeft, imgTop, cW, cH });
+  }, []);
+
+  useEffect(() => {
+    const c = containerRef.current; if (!c) return;
+    const ro = new ResizeObserver(recalc);
+    ro.observe(c); return () => ro.disconnect();
+  }, [recalc]);
+
+  // recalc immediately because blob urls may already be decoded
+  useEffect(() => { setBounds(null); setGhost(null); recalc(); }, [imageUrl, recalc]);
+  useEffect(() => { setGhost(null); setCropDrag(null); }, [mode]);
+
+  useEffect(() => {
+    // window so releasing outside the element still ends drag
+    const up = () => { setCropDrag(null); dragBoundsRef.current = null; };
+    window.addEventListener("mouseup", up);
+    return () => window.removeEventListener("mouseup", up);
   }, []);
 
   return <div ref={containerRef} className="absolute inset-0" />;
