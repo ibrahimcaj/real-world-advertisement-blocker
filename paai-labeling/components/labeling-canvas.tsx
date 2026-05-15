@@ -33,22 +33,36 @@ export function LabelingCanvas({ imageUrl, labels, onLabelChange, mode, crop, on
     setBounds({ imgW, imgH, imgLeft, imgTop, cW, cH });
   }, []);
 
-  useEffect(() => {
-    const c = containerRef.current; if (!c) return;
-    const ro = new ResizeObserver(recalc);
-    ro.observe(c); return () => ro.disconnect();
-  }, [recalc]);
+  useEffect(()=>{const c=containerRef.current;if(!c)return;const ro=new ResizeObserver(recalc);ro.observe(c);return()=>ro.disconnect();},[recalc]);
+  useEffect(()=>{setBounds(null);setGhost(null);recalc();},[imageUrl,recalc]);
+  useEffect(()=>{setGhost(null);setCropDrag(null);},[mode]);
+  useEffect(()=>{const up=()=>{setCropDrag(null);dragBoundsRef.current=null;};window.addEventListener("mouseup",up);return()=>window.removeEventListener("mouseup",up);},[]);
 
-  // recalc immediately because blob urls may already be decoded
-  useEffect(() => { setBounds(null); setGhost(null); recalc(); }, [imageUrl, recalc]);
-  useEffect(() => { setGhost(null); setCropDrag(null); }, [mode]);
+  // shared between modes so switching doesnt reset the viewport
+  const zoom = (() => {
+    if (!bounds) return null;
+    const { left:cl, right:cr, top:ct, bottom:cb } = crop;
+    if (cl===0 && cr===1 && ct===0 && cb===1) return null;
+    const cropW=(cr-cl)*bounds.imgW, cropH=(cb-ct)*bounds.imgH;
+    if (cropW<=0||cropH<=0) return null;
+    const s=Math.min(bounds.cW/cropW,bounds.cH/cropH);
+    const ox=bounds.imgLeft+(cl+cr)/2*bounds.imgW;
+    const oy=bounds.imgTop+(ct+cb)/2*bounds.imgH;
+    const tx=(bounds.cW/2-ox)/s; const ty=(bounds.cH/2-oy)/s;
+    const insetX=(bounds.cW-cropW*s)/2; const insetY=(bounds.cH-cropH*s)/2;
+    return { s, ox, oy, tx, ty, insetX, insetY };
+  })();
 
-  useEffect(() => {
-    // window so releasing outside the element still ends drag
-    const up = () => { setCropDrag(null); dragBoundsRef.current = null; };
-    window.addEventListener("mouseup", up);
-    return () => window.removeEventListener("mouseup", up);
-  }, []);
+  // mirrors the css transform so dot positions match screen pixels
+  const activeBounds: Bounds|null = (() => {
+    if (!bounds) return null;
+    if (!zoom) return bounds;
+    const{s,ox,oy}=zoom;
+    return{...bounds,imgW:bounds.imgW*s,imgH:bounds.imgH*s,imgLeft:(bounds.imgLeft-ox)*s+bounds.cW/2,imgTop:(bounds.imgTop-oy)*s+bounds.cH/2};
+  })();
+
+  function relPos(e:React.MouseEvent<HTMLDivElement>){const c=containerRef.current;if(!c)return null;const r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+  function toScreen(pt:LabelPoint,ab:Bounds){return{x:ab.imgLeft+pt.x*ab.imgW,y:ab.imgTop+pt.y*ab.imgH};}
 
   return <div ref={containerRef} className="absolute inset-0" />;
 }
