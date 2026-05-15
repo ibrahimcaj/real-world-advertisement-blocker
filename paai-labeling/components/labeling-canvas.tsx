@@ -232,3 +232,13 @@ export function LabelingCanvas({
           draggable={false}
         />
       </div>
+
+      {mode === "label" && <>
+        {/* polygon shows the annotated shape at a glance */}
+        {quadPts && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex:5 }}>
+            <polygon points={quadPts}
+              fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.5)"
+              strokeWidth="1.5" strokeLinejoin="round" />
+          </svg>
+        )}
