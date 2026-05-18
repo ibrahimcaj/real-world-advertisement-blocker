@@ -282,3 +282,10 @@ export function LabelingCanvas({
               } />
             </clipPath>
           </defs>
+
+          <rect
+            x={cropPx.x} y={cropPx.y}
+            width={cropPx.x2-cropPx.x} height={cropPx.y2-cropPx.y}
+            fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1"
+            clipPath="url(#crop-outside)"
+          />
