@@ -299,3 +299,39 @@ export function LabelingCanvas({
                     x2={cropPx.x2} y2={cropPx.y + f*(cropPx.y2-cropPx.y)} />
             </g>
           ))}
+
+          {(["top","bottom","left","right"] as EdgeKey[]).map(edge => {
+            const horiz = edge==="top" || edge==="bottom";
+            const py = edge==="top" ? cropPx.y : edge==="bottom" ? cropPx.y2 : 0;
+            const px = edge==="left" ? cropPx.x : edge==="right" ? cropPx.x2 : 0;
+            const vx1 = horiz ? cropPx.x  : px; const vy1 = horiz ? py : cropPx.y;
+            const vx2 = horiz ? cropPx.x2 : px; const vy2 = horiz ? py : cropPx.y2;
+            // extended hit area so edge handles at extremes are reachable
+            const PAD = 24;
+            const hx1 = horiz ? cropPx.x-PAD : px; const hy1 = horiz ? py : cropPx.y-PAD;
+            const hx2 = horiz ? cropPx.x2+PAD : px; const hy2 = horiz ? py : cropPx.y2+PAD;
+            const active = cropDrag === edge;
+            return (
+              <g key={edge}
+                style={{ pointerEvents:"all", cursor: horiz ? "ns-resize" : "ew-resize" }}
+                onMouseDown={ev => {
+                  ev.stopPropagation(); ev.preventDefault();
+                  // snapshot now so zoom shift doesnt break the drag
+                  dragBoundsRef.current = activeBounds;
+                  setCropDrag(edge);
+                }}
+              >
+                <line x1={hx1} y1={hy1} x2={hx2} y2={hy2} stroke="transparent" strokeWidth={20} />
+                <line x1={vx1} y1={vy1} x2={vx2} y2={vy2}
+                  stroke={active ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.55)"}
+                  strokeWidth={active ? 2 : 1}
+                  clipPath="url(#crop-outside)"
+                />
+              </g>
+            );
+          })}
+        </svg>
+      )}
+    </div>
+  );
+}
