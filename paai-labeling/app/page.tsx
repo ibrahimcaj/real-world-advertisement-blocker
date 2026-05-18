@@ -84,3 +84,34 @@ export default function Home() {
 
   const currentImage = images[currentIndex] ?? null;
   const labeledCount = images.filter(img => img.saved).length;
+
+  // try to reopen last session on mount
+  useEffect(() => {
+    async function restoreSession() {
+      const handle = await getStoredDirHandle();
+      if (!handle) return;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const perm = await (handle as any).queryPermission({ mode: "readwrite" });
+        const granted =
+          perm === "granted" ||
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (await (handle as any).requestPermission({ mode: "readwrite" })) === "granted";
+        // user rejected the permission prompt, dont bother loading
+        if (!granted) return;
+
+        const saved = await readLabelsFromDir(handle);
+        const entries = await loadImagesFromDir(handle, saved);
+        if (entries.length === 0) return;
+
+        dirHandleRef.current = handle;
+        setImages(entries);
+        // jump straight to first thing that still needs doing
+        const firstUnlabeled = entries.findIndex(e => !e.saved);
+        setCurrentIndex(firstUnlabeled >= 0 ? firstUnlabeled : 0);
+      } catch {
+        // handle is stale or folder moved, just start fresh
+      }
+    }
+    restoreSession();
+  }, []);
