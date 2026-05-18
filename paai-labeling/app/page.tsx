@@ -29,3 +29,16 @@ interface ImageEntry {
 function isFullyLabeled(labels: ImageLabels): boolean {
   return ALL_EDGES.every(e => labels[e] !== undefined);
 }
+
+// navigator.platform is deprecated but still the simplest platform check
+const isMac = typeof navigator !== "undefined" && /mac/i.test(navigator.platform);
+const MOD = isMac ? "⌘" : "Ctrl";
+
+const EDGE_SHORTCUT: Record<EdgeKey, string> = { top:"1", right:"2", bottom:"3", left:"4" };
+const EDGE_LETTER:   Record<EdgeKey, string> = { top:"T", right:"R", bottom:"B", left:"L" };
+
+const TOOL_BTN = cn(
+  "w-9 flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg transition-colors outline-none",
+  "focus-visible:ring-2 focus-visible:ring-ring"
+);
+const SHORTCUT = "text-[9px] leading-none tabular-nums select-none text-muted-foreground/60";
