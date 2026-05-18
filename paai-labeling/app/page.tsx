@@ -69,3 +69,18 @@ async function loadImagesFromDir(
   entries.sort((a, b) => a.filename.localeCompare(b.filename));
   return entries;
 }
+
+export default function Home() {
+  const [images, setImages] = useState<ImageEntry[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [mode, setMode] = useState<"label" | "crop">("label");
+  const [crop, setCrop] = useState<CropRect>(DEFAULT_CROP);
+  const [selectedEdge, setSelectedEdge] = useState<EdgeKey>("top");
+  const [done, setDone] = useState(false);
+
+  // ref so async handlers always write to the current handle
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dirHandleRef = useRef<any>(null);
+
+  const currentImage = images[currentIndex] ?? null;
+  const labeledCount = images.filter(img => img.saved).length;
