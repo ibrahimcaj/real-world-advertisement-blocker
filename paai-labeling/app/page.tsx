@@ -42,3 +42,30 @@ const TOOL_BTN = cn(
   "focus-visible:ring-2 focus-visible:ring-ring"
 );
 const SHORTCUT = "text-[9px] leading-none tabular-nums select-none text-muted-foreground/60";
+
+// runs outside the component so it doesnt close over stale state
+async function loadImagesFromDir(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dir: any,
+  savedLabels: Record<string, ImageLabels>
+): Promise<ImageEntry[]> {
+  const entries: ImageEntry[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for await (const [name, handle] of (dir as any).entries()) {
+    if (handle.kind !== "file") continue;
+    const file = await handle.getFile();
+    // skip ds_store and other non-image files in the folder
+    if (!file.type.startsWith("image/")) continue;
+    entries.push({
+      id: crypto.randomUUID(),
+      filename: name,
+      url: URL.createObjectURL(file),
+      labels: savedLabels[name] ?? {},
+      // present in labels.json means already done
+      saved: !!savedLabels[name],
+    });
+  }
+  // alphabetical so order is predictable regardless of filesystem order
+  entries.sort((a, b) => a.filename.localeCompare(b.filename));
+  return entries;
+}
