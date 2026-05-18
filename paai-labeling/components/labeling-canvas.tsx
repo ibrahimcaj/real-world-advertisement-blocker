@@ -255,3 +255,15 @@ export function LabelingCanvas({
             </div>
           );
         })}
+
+        {/* colored for selected edge so user knows what theyre placing */}
+        {ghost && (
+          <div className="absolute pointer-events-none"
+            style={{ zIndex:20, left:ghost.x, top:ghost.y, transform:"translate(-50%,-50%)" }}>
+            <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center shadow-lg"
+              style={{ backgroundColor:EDGE_COLORS[selectedEdge], borderColor:"rgba(255,255,255,0.8)", opacity:0.45 }}>
+              <span className="text-[8px] font-bold text-white leading-none">{EDGE_LABEL[selectedEdge]}</span>
+            </div>
+          </div>
+        )}
+      </>}
