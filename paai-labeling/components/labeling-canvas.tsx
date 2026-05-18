@@ -289,3 +289,13 @@ export function LabelingCanvas({
             fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1"
             clipPath="url(#crop-outside)"
           />
+
+          {/* rule of thirds for composition */}
+          {[1/3, 2/3].map(f => (
+            <g key={f} stroke="rgba(255,255,255,0.15)" strokeWidth="0.5">
+              <line x1={cropPx.x + f*(cropPx.x2-cropPx.x)} y1={cropPx.y}
+                    x2={cropPx.x + f*(cropPx.x2-cropPx.x)} y2={cropPx.y2} />
+              <line x1={cropPx.x} y1={cropPx.y + f*(cropPx.y2-cropPx.y)}
+                    x2={cropPx.x2} y2={cropPx.y + f*(cropPx.y2-cropPx.y)} />
+            </g>
+          ))}
