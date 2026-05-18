@@ -267,3 +267,18 @@ export function LabelingCanvas({
           </div>
         )}
       </>}
+
+      {mode === "crop" && activeBounds && cropPx && (
+        <svg style={{
+          position:"absolute", inset:0, width:"100%", height:"100%",
+          overflow:"visible", zIndex:20, pointerEvents:"none",
+        }}>
+          <defs>
+            {/* evenodd punches a hole so stroke never bleeds inside */}
+            <clipPath id="crop-outside">
+              <path fillRule="evenodd" d={
+                `M-9999,-9999 H9999 V9999 H-9999 Z ` +
+                `M${cropPx.x},${cropPx.y} H${cropPx.x2} V${cropPx.y2} H${cropPx.x} Z`
+              } />
+            </clipPath>
+          </defs>
