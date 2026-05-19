@@ -198,3 +198,59 @@ export default function Home() {
 
     const { left, right, top, bottom } = crop;
     const isDefaultCrop = left === 0 && right === 1 && top === 0 && bottom === 1;
+
+    // track the latest image list so we can pass it to persistLabelsJSON
+    // without waiting for react state to flush
+    let updatedImages = images;
+
+    if (!isDefaultCrop) {
+      if (!dirHandleRef.current) {
+        toast.error("Open a folder first so files can be saved in place.");
+        return;
+      }
+
+      const img = new Image();
+      img.src = currentImage.url;
+      // blob urls sometimes resolve before onload so check complete first
+      if (!img.complete) {
+        await new Promise<void>(res => { img.onload = () => res(); img.onerror = () => res(); });
+      }
+
+      const srcX = Math.round(left * img.naturalWidth);
+      const srcY = Math.round(top  * img.naturalHeight);
+      // min 1 so canvas never has a zero dimension
+      const srcW = Math.max(1, Math.round((right  - left) * img.naturalWidth));
+      const srcH = Math.max(1, Math.round((bottom - top)  * img.naturalHeight));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = srcW; canvas.height = srcH;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+
+      // preserve format so png transparency isnt lost
+      const isPng = currentImage.filename.toLowerCase().endsWith(".png");
+      const blob = await new Promise<Blob | null>(res =>
+        canvas.toBlob(res, isPng ? "image/png" : "image/jpeg", 0.95)
+      );
+      if (!blob) return;
+
+      try {
+        // overwrite in place so the folder is the single source of truth
+        const fh = await dirHandleRef.current.getFileHandle(currentImage.filename, { create: true });
+        const wr = await fh.createWritable();
+        await wr.write(blob); await wr.close();
+
+        // update url so the thumbnail reflects the crop this session
+        const newUrl = URL.createObjectURL(blob);
+        updatedImages = images.map(e =>
+          e.id === currentImage.id ? { ...e, url: newUrl } : e
+        );
+        setImages(updatedImages);
+        toast.success(`Saved: ${currentImage.filename}`);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to save file.");
+        return;
+      }
+    }
