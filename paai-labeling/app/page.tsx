@@ -273,3 +273,46 @@ export default function Home() {
     }
     setCurrentIndex(i => i + 1);
   }
+
+  // refs so the keyboard handler always calls the latest version of each
+  // function without needing to be in the dependency array
+  const handleClearRef = useRef(handleClear);
+  handleClearRef.current = handleClear;
+  const handleSaveAndNextRef = useRef(handleSaveAndNext);
+  handleSaveAndNextRef.current = handleSaveAndNext;
+  // modeRef so backspace reads fresh mode without stale closure
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.target as HTMLElement).matches("input,textarea")) return;
+      // done screen swallows all keys except escape
+      if (done) { if (e.key === "Escape") setDone(false); return; }
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault(); setCurrentIndex(i => Math.max(0, i - 1));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault(); setCurrentIndex(i => Math.min(images.length - 1, i + 1));
+      } else if (e.key === "c" || e.key === "C") {
+        // guard metaKey so cmd+c for copy still works
+        if (!e.metaKey && !e.ctrlKey) setMode("crop");
+      } else if (e.key === "l" || e.key === "L") {
+        setMode("label");
+      } else if (e.key === "1") {
+        setMode("label"); setSelectedEdge("top");
+      } else if (e.key === "2") {
+        setMode("label"); setSelectedEdge("right");
+      } else if (e.key === "3") {
+        setMode("label"); setSelectedEdge("bottom");
+      } else if (e.key === "4") {
+        setMode("label"); setSelectedEdge("left");
+      } else if (e.key === "Backspace") {
+        e.preventDefault(); handleClearRef.current();
+      } else if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault(); handleSaveAndNextRef.current();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [images.length, done]);
