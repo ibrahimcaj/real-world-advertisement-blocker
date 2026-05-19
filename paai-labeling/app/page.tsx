@@ -254,3 +254,22 @@ export default function Home() {
         return;
       }
     }
+
+    // mark done before persisting so the json reflects this image too
+    updatedImages = updatedImages.map(e =>
+      e.id === currentImage.id ? { ...e, saved: true } : e
+    );
+    setImages(updatedImages);
+
+    await persistLabelsJSON(updatedImages);
+
+    setCrop(DEFAULT_CROP);
+    setSelectedEdge("top");
+
+    // last image means the batch is done
+    if (currentIndex >= images.length - 1) {
+      setDone(true);
+      return;
+    }
+    setCurrentIndex(i => i + 1);
+  }
