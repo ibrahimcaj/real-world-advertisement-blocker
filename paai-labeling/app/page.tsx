@@ -115,3 +115,31 @@ export default function Home() {
     }
     restoreSession();
   }, []);
+
+  // reset crop so previous image crop doesnt bleed into the next image
+  useEffect(() => { setCrop(DEFAULT_CROP); }, [currentIndex]);
+
+  async function handleOpenFolder() {
+    if (!("showDirectoryPicker" in window)) {
+      toast.error("Folder access requires Chrome or Edge.");
+      return;
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dir = await (window as any).showDirectoryPicker({ mode: "readwrite" });
+      const saved = await readLabelsFromDir(dir);
+      const entries = await loadImagesFromDir(dir, saved);
+
+      dirHandleRef.current = dir;
+      // persist so next visit skips the picker
+      await storeDirHandle(dir);
+      setImages(entries);
+      setDone(false);
+      const firstUnlabeled = entries.findIndex(e => !e.saved);
+      setCurrentIndex(firstUnlabeled >= 0 ? firstUnlabeled : 0);
+      setCrop(DEFAULT_CROP);
+      setSelectedEdge("top");
+    } catch {
+      // user hit cancel in the picker
+    }
+  }
