@@ -143,3 +143,17 @@ export default function Home() {
       // user hit cancel in the picker
     }
   }
+
+  function handleLabelChange(edge: EdgeKey, point: LabelPoint) {
+    if (!currentImage) return;
+    setImages(prev =>
+      prev.map(img =>
+        img.id === currentImage.id
+          ? { ...img, labels: { ...img.labels, [edge]: point } }
+          : img
+      )
+    );
+    // cycle to next edge so the user doesnt have to press 1234 manually each time
+    const nextEdge = ALL_EDGES[(ALL_EDGES.indexOf(edge) + 1) % ALL_EDGES.length];
+    setSelectedEdge(nextEdge);
+  }
