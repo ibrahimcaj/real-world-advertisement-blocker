@@ -192,3 +192,9 @@ export default function Home() {
       console.error("Auto-save JSON failed:", err);
     }
   }
+
+  async function handleSaveAndNext() {
+    if (!currentImage) return;
+
+    const { left, right, top, bottom } = crop;
+    const isDefaultCrop = left === 0 && right === 1 && top === 0 && bottom === 1;
