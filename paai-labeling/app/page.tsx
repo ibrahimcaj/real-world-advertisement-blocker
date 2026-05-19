@@ -170,3 +170,25 @@ export default function Home() {
     // start from top again after clearing
     setSelectedEdge("top");
   }
+
+  async function persistLabelsJSON(currentImages: ImageEntry[]) {
+    if (!dirHandleRef.current) return;
+    const labeled = currentImages.filter(img => isFullyLabeled(img.labels));
+    // nothing to write yet
+    if (labeled.length === 0) return;
+    const data = labeled.map(({ filename, labels: l }) => ({
+      filename,
+      top:    l.top,
+      right:  l.right,
+      bottom: l.bottom,
+      left:   l.left,
+    }));
+    try {
+      const fh = await dirHandleRef.current.getFileHandle("labels.json", { create: true });
+      const wr = await fh.createWritable();
+      await wr.write(JSON.stringify(data, null, 2));
+      await wr.close();
+    } catch (err) {
+      console.error("Auto-save JSON failed:", err);
+    }
+  }
