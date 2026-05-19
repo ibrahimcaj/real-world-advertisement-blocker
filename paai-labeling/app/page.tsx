@@ -157,3 +157,16 @@ export default function Home() {
     const nextEdge = ALL_EDGES[(ALL_EDGES.indexOf(edge) + 1) % ALL_EDGES.length];
     setSelectedEdge(nextEdge);
   }
+
+  function handleClear() {
+    // backspace behavior differs by mode so one key does the right thing
+    if (mode === "crop") { setCrop(DEFAULT_CROP); return; }
+    if (!currentImage) return;
+    setImages(prev =>
+      prev.map(img =>
+        img.id === currentImage.id ? { ...img, labels: {}, saved: false } : img
+      )
+    );
+    // start from top again after clearing
+    setSelectedEdge("top");
+  }
