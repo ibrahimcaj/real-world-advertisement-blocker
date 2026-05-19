@@ -316,3 +316,10 @@ export default function Home() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [images.length, done]);
+
+  // disable clear when theres nothing to clear
+  const canClear = mode === "crop"
+    ? (crop.left !== 0 || crop.right !== 1 || crop.top !== 0 || crop.bottom !== 1)
+    : !!currentImage && Object.keys(currentImage.labels).length > 0;
+
+  const hasCrop = crop.left !== 0 || crop.right !== 1 || crop.top !== 0 || crop.bottom !== 1;
