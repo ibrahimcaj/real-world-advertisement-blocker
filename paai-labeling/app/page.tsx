@@ -323,3 +323,13 @@ export default function Home() {
     : !!currentImage && Object.keys(currentImage.labels).length > 0;
 
   const hasCrop = crop.left !== 0 || crop.right !== 1 || crop.top !== 0 || crop.bottom !== 1;
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
+      <AppSidebar
+        images={images}
+        currentIndex={currentIndex}
+        // selecting from sidebar dismisses the done screen
+        onSelectImage={i => { setCurrentIndex(i); setDone(false); }}
+        onOpenFolder={handleOpenFolder}
+      />
