@@ -68,3 +68,58 @@ export function VideoDetector({ classNames }: { classNames?: string[] }) {
       }
     }, "image/jpeg", 0.85);
   }, []);
+
+  // draw boxes every raf tick, send to server at throttled fps
+  const loop = useCallback(() => {
+    const video  = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) { rafRef.current = requestAnimationFrame(loop); return; }
+
+    const ctx = canvas.getContext("2d")!;
+    const vr  = video.getBoundingClientRect();
+    const pr  = canvas.parentElement!.getBoundingClientRect();
+
+    // size and position canvas to sit exactly over the video element
+    canvas.width  = vr.width;
+    canvas.height = vr.height;
+    canvas.style.left   = `${vr.left - pr.left}px`;
+    canvas.style.top    = `${vr.top  - pr.top}px`;
+    canvas.style.width  = `${vr.width}px`;
+    canvas.style.height = `${vr.height}px`;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // draw boxes scaled to actual displayed video size
+    for (const d of detections) {
+      const [x1, y1, x2, y2] = d.box;
+      const px  = x1 * canvas.width;
+      const py  = y1 * canvas.height;
+      const pw  = (x2 - x1) * canvas.width;
+      const ph  = (y2 - y1) * canvas.height;
+      const col = classColor(d.class_id);
+
+      ctx.strokeStyle = col;
+      ctx.lineWidth   = 2;
+      ctx.strokeRect(px, py, pw, ph);
+
+      const label = classNames?.[d.class_id] ?? `class ${d.class_id}`;
+      const text  = `${label} ${Math.round(d.confidence * 100)}%`;
+
+      ctx.font         = "bold 12px monospace";
+      ctx.fillStyle    = col;
+      const tw         = ctx.measureText(text).width;
+      // tag background so text is readable on any image
+      ctx.fillRect(px, py - 18, tw + 8, 18);
+      ctx.fillStyle = "#000";
+      ctx.fillText(text, px + 4, py - 4);
+    }
+
+    // throttle inference by fps slider
+    const now = performance.now();
+    if (now - lastSent.current > 1000 / fps) {
+      lastSent.current = now;
+      sendFrame();
+    }
+
+    rafRef.current = requestAnimationFrame(loop);
+  }, [detections, fps, sendFrame, classNames]);
