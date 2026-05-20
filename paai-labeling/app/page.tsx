@@ -373,3 +373,31 @@ export default function Home() {
             </div>
           </div>
         ) : null}
+
+        {/* floating toolbar overlays the canvas so image gets full height */}
+        {!done && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+            <div className="flex items-center gap-0.5 rounded-xl border bg-card shadow-xl p-1.5 pointer-events-auto">
+
+              {/* one button per edge, colored so its obvious which is active */}
+              {ALL_EDGES.map(edge => {
+                const active = mode === "label" && selectedEdge === edge;
+                return (
+                  <button
+                    key={edge}
+                    onClick={() => { setMode("label"); setSelectedEdge(edge); }}
+                    title={`${edge} (${EDGE_SHORTCUT[edge]})`}
+                    className={cn(
+                      TOOL_BTN,
+                      active
+                        ? "text-white"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    )}
+                    // inline style because tailwind cant do arbitrary dynamic colors
+                    style={active ? { backgroundColor: EDGE_COLORS[edge] } : undefined}
+                  >
+                    <span className="text-[11px] font-semibold leading-none">{EDGE_LETTER[edge]}</span>
+                    <span className={cn(SHORTCUT, active && "text-white/70")}>{EDGE_SHORTCUT[edge]}</span>
+                  </button>
+                );
+              })}
