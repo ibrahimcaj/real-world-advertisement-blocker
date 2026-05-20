@@ -401,3 +401,20 @@ export default function Home() {
                   </button>
                 );
               })}
+
+              <div className="w-px h-5 bg-border mx-0.5" />
+
+              {/* crop toggles rather than being a separate mode button */}
+              <button
+                onClick={() => setMode(m => m === "crop" ? "label" : "crop")}
+                title="Crop mode (C)"
+                className={cn(
+                  TOOL_BTN,
+                  mode === "crop"
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                )}
+              >
+                <Crop className="size-4" />
+                <span className={SHORTCUT}>C</span>
+              </button>
