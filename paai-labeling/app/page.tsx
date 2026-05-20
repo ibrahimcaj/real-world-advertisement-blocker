@@ -333,3 +333,43 @@ export default function Home() {
         onSelectImage={i => { setCurrentIndex(i); setDone(false); }}
         onOpenFolder={handleOpenFolder}
       />
+
+      <div className="relative flex-1 min-w-0 overflow-hidden">
+
+        {/* that s all screen */}
+        {done && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-background gap-4">
+            <p className="text-4xl font-semibold tracking-tight">That&apos;s all</p>
+            <p className="text-sm text-muted-foreground">
+              {labeledCount} of {images.length} image{images.length !== 1 ? "s" : ""} labeled
+            </p>
+            <button
+              onClick={() => { setDone(false); setCurrentIndex(images.length - 1); }}
+              className="mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+            >
+              Go back
+            </button>
+          </div>
+        )}
+
+        {/* canvas area with top and bottom breathing room */}
+        {!done && currentImage ? (
+          <div className="absolute top-20 left-0 right-0 bottom-20">
+            <LabelingCanvas
+              imageUrl={currentImage.url}
+              labels={currentImage.labels}
+              onLabelChange={handleLabelChange}
+              mode={mode}
+              crop={crop}
+              onCropChange={setCrop}
+              selectedEdge={selectedEdge}
+            />
+          </div>
+        ) : !done ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <p className="text-base font-medium mb-1">No images loaded</p>
+              <p className="text-sm">Open a folder from the sidebar</p>
+            </div>
+          </div>
+        ) : null}
