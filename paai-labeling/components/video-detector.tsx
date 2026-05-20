@@ -123,3 +123,16 @@ export function VideoDetector({ classNames }: { classNames?: string[] }) {
 
     rafRef.current = requestAnimationFrame(loop);
   }, [detections, fps, sendFrame, classNames]);
+
+  useEffect(() => {
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [loop]);
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !videoRef.current) return;
+    videoRef.current.src = URL.createObjectURL(file);
+    setVideoLoaded(true);
+    setDetections([]);
+  }
