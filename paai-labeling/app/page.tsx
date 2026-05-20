@@ -418,3 +418,51 @@ export default function Home() {
                 <Crop className="size-4" />
                 <span className={SHORTCUT}>C</span>
               </button>
+
+              <div className="w-px h-5 bg-border mx-0.5" />
+
+              {/* clears crop in crop mode, labels in label mode */}
+              <button
+                onClick={handleClear}
+                disabled={!canClear}
+                title={mode === "crop" ? "Reset crop (Backspace)" : "Clear labels (Backspace)"}
+                className={cn(
+                  TOOL_BTN,
+                  "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                  "disabled:opacity-25 disabled:pointer-events-none"
+                )}
+              >
+                <Trash2 className="size-4" />
+                <span className={SHORTCUT}>⌫</span>
+              </button>
+
+              {/* saves crop to disk if one is set, then advances */}
+              <button
+                onClick={handleSaveAndNext}
+                disabled={!currentImage}
+                title={hasCrop ? `Save cropped & next (${MOD}↵)` : `Next (${MOD}↵)`}
+                className={cn(
+                  TOOL_BTN,
+                  "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+                  "disabled:opacity-25 disabled:pointer-events-none"
+                )}
+              >
+                <Check className="size-4" />
+                <span className={SHORTCUT}>{MOD}↵</span>
+              </button>
+
+              {images.length > 0 && (
+                <>
+                  <div className="w-px h-5 bg-border mx-0.5" />
+                  <span className="text-xs text-muted-foreground tabular-nums px-1 select-none">
+                    {currentIndex + 1} / {images.length}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
