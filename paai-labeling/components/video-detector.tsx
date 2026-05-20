@@ -42,3 +42,29 @@ export function VideoDetector({ classNames }: { classNames?: string[] }) {
       .then(d => setServerStatus(d.loaded ? "ready" : "no-model"))
       .catch(() => setServerStatus("offline"));
   }, []);
+
+  const sendFrame = useCallback(async () => {
+    const video = videoRef.current;
+    const hidden = hiddenRef.current;
+    if (!video || !hidden || video.paused || video.ended || inferring.current) return;
+
+    inferring.current = true;
+    const ctx = hidden.getContext("2d")!;
+    // draw current frame into hidden 640x640 canvas
+    ctx.drawImage(video, 0, 0, 640, 640);
+
+    hidden.toBlob(async (blob) => {
+      if (!blob) { inferring.current = false; return; }
+      try {
+        const form = new FormData();
+        form.append("file", blob, "frame.jpg");
+        const res = await fetch(`${SERVER}/predict`, { method: "POST", body: form });
+        const data = await res.json();
+        if (data.detections) setDetections(data.detections);
+      } catch {
+        // server down or slow, just skip
+      } finally {
+        inferring.current = false;
+      }
+    }, "image/jpeg", 0.85);
+  }, []);
