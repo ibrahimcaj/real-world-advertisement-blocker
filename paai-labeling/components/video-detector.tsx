@@ -136,3 +136,69 @@ export function VideoDetector({ classNames }: { classNames?: string[] }) {
     setVideoLoaded(true);
     setDetections([]);
   }
+
+  return (
+    <div className="flex flex-col gap-4 p-4 h-full">
+      {/* top bar */}
+      <div className="flex items-center gap-4 flex-wrap">
+        <input type="file" accept="video/*" onChange={handleFile}
+          className="text-sm text-muted-foreground file:mr-2 file:px-3 file:py-1 file:rounded file:border-0 file:bg-accent file:text-accent-foreground file:text-sm cursor-pointer" />
+
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          Inference FPS:
+          <input type="range" min={1} max={30} value={fps}
+            onChange={e => setFps(Number(e.target.value))}
+            className="w-24" />
+          <span className="tabular-nums w-6">{fps}</span>
+        </label>
+
+        <span className={`text-xs px-2 py-0.5 rounded-full ${
+          serverStatus === "checking"  ? "bg-muted text-muted-foreground" :
+          serverStatus === "ready"     ? "bg-green-500/20 text-green-400" :
+          serverStatus === "no-model"  ? "bg-yellow-500/20 text-yellow-400" :
+          "bg-red-500/20 text-red-400"
+        }`}>
+          {serverStatus === "checking" ? "checking…" :
+           serverStatus === "ready"    ? "model ready" :
+           serverStatus === "no-model" ? "server up — no model in models/" :
+           "server offline"}
+        </span>
+      </div>
+
+      {/* video + overlay */}
+      <div className="relative flex-1 bg-black rounded-lg overflow-hidden flex items-center justify-center">
+        {!videoLoaded && (
+          <p className="text-muted-foreground text-sm">Open a video file above</p>
+        )}
+        <video
+          ref={videoRef}
+          controls
+          className="max-w-full max-h-full"
+          style={{ display: videoLoaded ? "block" : "none" }}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+        />
+        {/* positioned in loop() to sit exactly over the video element */}
+        <canvas
+          ref={canvasRef}
+          className="absolute pointer-events-none"
+          style={{ display: videoLoaded ? "block" : "none" }}
+        />
+        {/* hidden canvas for frame capture, never shown */}
+        <canvas ref={hiddenRef} width={640} height={640} className="hidden" />
+
+        {/* overlaid chips dont affect layout or shift the video */}
+        {detections.length > 0 && (
+          <div className="absolute bottom-10 left-0 right-0 flex flex-wrap gap-1.5 px-3 pointer-events-none">
+            {detections.map((d, i) => (
+              <span key={i} className="text-xs px-2 py-0.5 rounded-full font-mono backdrop-blur-sm"
+                style={{ background: classColor(d.class_id) + "55", color: "#fff" }}>
+                {classNames?.[d.class_id] ?? `class ${d.class_id}`} {Math.round(d.confidence * 100)}%
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
