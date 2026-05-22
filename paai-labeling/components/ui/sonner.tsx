@@ -1,9 +1,9 @@
 "use client";
 
-import { Toaster as Sonner } from "sonner";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
 
-const Toaster = () => (
-  <Sonner theme="dark" className="toaster group" />
+const Toaster = ({ ...props }: ToasterProps) => (
+  <Sonner theme="dark" className="toaster group" {...props} />
 );
 
 export { Toaster };
