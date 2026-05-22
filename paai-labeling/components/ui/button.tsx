@@ -8,9 +8,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground",
+        outline: "border-border bg-background hover:bg-muted hover:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+        ghost: "hover:bg-muted hover:text-foreground dark:hover:bg-muted/50",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-8 gap-1.5 px-2.5",
+        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-[0.8rem]",
+        lg: "h-9 gap-1.5 px-2.5",
+        icon: "size-8",
       },
     },
     defaultVariants: {
