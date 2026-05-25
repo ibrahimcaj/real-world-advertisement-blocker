@@ -1,3 +1,4 @@
+# uvicorn server.py --reload
 fastapi
 uvicorn
 ultralytics
