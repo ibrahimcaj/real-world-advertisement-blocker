@@ -109,19 +109,30 @@ export function AppSidebar({
                     completed && currentIndex !== index && "opacity-40"
                   )}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={img.url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className={cn(
-                      "text-xs truncate font-medium leading-tight",
-                      currentIndex === index
-                        ? "text-accent-foreground"
-                        : completed ? "text-muted-foreground/50" : "text-foreground"
-                    )}>
+                    <div
+                      className={cn(
+                        "text-xs truncate font-medium leading-tight",
+                        currentIndex === index
+                          ? "text-accent-foreground"
+                          : completed ? "text-muted-foreground/50" : "text-foreground"
+                      )}
+                    >
                       {img.filename}
                     </div>
                     {STATUS_LABEL[status] && (
-                      <div className={cn("text-[10px] leading-tight mt-0.5", STATUS_TEXT_CLASSES[status])}>
+                      <div
+                        className={cn(
+                          "text-[10px] leading-tight mt-0.5",
+                          STATUS_TEXT_CLASSES[status]
+                        )}
+                      >
                         {STATUS_LABEL[status]}
                       </div>
                     )}
