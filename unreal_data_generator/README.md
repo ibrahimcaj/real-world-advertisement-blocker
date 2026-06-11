@@ -13,7 +13,7 @@ The generator creates rendered images from an Unreal scene and automatically exp
 - [Unreal Engine Setup](#unreal-engine-setup)
 - [Blueprint System Overview](#blueprint-system-overview)
 - [Output Dataset Structure](#output-dataset-structure)
-- [Usage Workflow](#usage-workflow)
+- [Limitations](#limitations)
 - [Licensing and Asset Notice](#licensing-and-asset-notice)
 - [Future Improvements](#future-improvements)
 
@@ -39,11 +39,11 @@ The generator also automatically creates YOLO labels for both object detection a
 The unreal_data_generator folder is organized into several smaller parts:
 
 unreal_data_generator/
-├── README.md
-├── scripts/
-├── source_code/
-├── sample_output/
-└── unreal_project/
+    README.md
+    scripts/
+    source_code/
+    sample_output/
+    unreal_project/
 
 ### [`scripts/`](scripts/)
 
@@ -57,19 +57,19 @@ Contains the small C++ helper used in Unreal Engine to save generated label text
 
 More details are available in [`source_code/README.md`](source_code/README.md).
 
-### sample_output/
+### [`sample_output/`]
 
 Contains a small sample of generated synthetic data. This is not the full synthetic dataset, but only a small example showing the output of the generator.
 
 The sample output includes:
 
 sample_output/
-├── images/
-├── labels_detect/
-├── labels_seg/
-└── debug/
+    images/
+    labels_detect/
+    labels_seg/
+    debug/
 
-### unreal_project/
+### [`unreal_project/`]
 
 Contains the Unreal side generator assets that can be reused or migrated into an Unreal Engine project.
 
@@ -107,11 +107,113 @@ The basic setup process is:
 ## Blueprint System Overview
 
 ## Output Dataset Structure 
-also includes validation script, Sample output and label formats
+The generator exports rendered images and matching YOLO label files. Each generated frame uses the same base filename across all output folders.
 
-## Usage worklfow and limitations
+Example:
+
+images/frame_0.png
+labels_detect/frame_0.txt
+labels_seg/frame_0.txt
+
+The generated dataset is organized into separate folders:
+
+output_dataset/
+  images/
+  labels_detect/
+  labels_seg/
+
+[`images/`]
+
+Contains the rendered images exported from Unreal Engine.
+
+Example:
+
+images/frame_0.png
+images/frame_1.png
+images/frame_2.png
+
+[`labels_detect/`]
+
+Contains YOLO object detection label files. Each .txt file matches an image with the same base name.
+
+Example:
+
+images/frame_0.png
+labels_detect/frame_0.txt
+
+Detection labels use the YOLO bounding box format:
+
+class x_center y_center width height
+
+All coordinate values are normalized between 0 and 1.
+
+Example:
+
+0 0.309059 0.422695 0.051761 0.024552
+
+[`labels_seg/`]
+
+Contains YOLO segmentation label files. Each .txt file also matches an image with the same base name.
+
+Example:
+
+images/frame_0.png
+labels_seg/frame_0.txt
+
+Segmentation labels use YOLO polygon format:
+
+class x1 y1 x2 y2 x3 y3 x4 y4
+
+For this synthetic ad dataset, each ad is represented as a four-point rectangle. All coordinate values are normalized between 0 and 1.
+
+Example:
+
+0 0.283178 0.410419 0.334939 0.410419 0.334939 0.434971 0.283178 0.434971
+
+[`debug/`]
+
+Contains validation overlay images created by the Python validation script. These images are not used for training, but they help visually confirm that the exported labels match the generated images.
+
+Example:
+
+debug/frame_0_debug.png
+debug/frame_1_debug.png
+debug/frame_2_debug.png
+
+The full generated synthetic dataset is stored separately in the main dataset folder of the project.
+
+## Limitations
+
+This is an early working version of the synthetic data generator, so there are still some limitations:
+
+- Camera points are placed manually, so the quality of generated images depends on good camera placement.
+- Day and night batches are currently handled manually by enabling the desired lighting setup before generation.
+- Occlusion filtering uses a simple line-trace approach, so some edge cases may still require manual checking.
+- Segmentation labels assume that each ad is a flat rectangular surface represented by four corner points.
+- The validation overlays are used only for checking label quality and are not part of the training data.
 
 ## Licensing and Asset Notice
 
+The original Unreal scene used during development included third party city/map assets from Fab. These assets are not included in this public repository.
+
+According to the Fab Standard License summary, Fab assets may be used privately or commercially and may be shared with collaborators working on the project, but they may not be resold or redistributed as standalone assets. For this reason, the raw city/map assets are excluded from this repository.
+
+This repository only includes the custom generator logic, helper code, validation script, selected Blueprint assets, documentation, and a small sample output.
+
+To reproduce the original environment, users must either use their own licensed assets from Fab or replace the scene with their own Unreal map/assets.
+
+Fab Standard License: https://www.fab.com/eula
+
 ## Future improvements
+
+Possible future improvements for the Unreal synthetic data generator include:
+
+- Add a fully redistributable demo scene using placeholder buildings and ad surfaces.
+- Improve occlusion filtering by tracing to multiple ad points instead of only the ad center.
+- Automate day/night switching instead of changing lighting setups manually.
+- Add more weather and lighting presets for greater visual variety.
+- Add automatic dataset splitting into train, val, and test folders.
+- Add stronger quality checks to skip images with no visible ads or too many occluded labels.
+- Improve camera point generation so useful camera views can be created more automatically.
+- Add support for additional object classes beyond advertisements.
 
