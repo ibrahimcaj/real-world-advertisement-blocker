@@ -119,6 +119,8 @@ This section explains the main Unreal Engine assets used by the synthetic data g
 
 ### `BP_DatasetGenerator`
 
+![BP_DatasetGenerator Blueprint](docs/images/BP_DatasetGenerator.png)
+
 `BP_DatasetGenerator` is the main controller for the synthetic data generation process.
 
 It handles the full generation loop:
@@ -153,6 +155,8 @@ This ensures that the generated image and the exported labels are based on the s
 
 ### `BP_AdTarget`
 
+![BP_AdTarget Blueprint](docs/images/BP_AdTarget.png)
+
 `BP_AdTarget` represents one ad that should be labeled in the generated dataset.
 
 Each ad target uses a box component placed around the visible ad surface. The corners of this box are used to calculate both object detection bounding boxes and segmentation polygons.
@@ -168,6 +172,8 @@ The ad center is used for basic occlusion filtering, while the four corners are 
 
 ### `BP_CameraPoint`
 
+![BP_CameraPoint Variables](docs/images/BP_CameraPoint.png)
+
 `BP_CameraPoint` represents a possible camera position in the scene.
 
 The dataset generator randomly selects one of these camera points for each generated frame. This creates variation in camera angle, distance, and composition.
@@ -177,6 +183,8 @@ Each camera point can also store a minimum and maximum FOV value. During generat
 Good camera point placement is important because it strongly affects the quality of the generated dataset.
 
 ### `BP_WeatherController`
+
+![BP_WeatherController Blueprint](docs/images/BP_WeatherController.png)
 
 `BP_WeatherController` controls the simple environmental variation used during generation.
 
@@ -207,14 +215,6 @@ Example preset types include clear, cloudy, rainy, foggy, and heavy fog conditio
 The render camera captures the scene into this render target, and the generator exports it as an image file. The current setup uses a fixed image resolution, so the label projection logic can calculate normalized YOLO coordinates correctly.
 
 The render target is an important part of the pipeline because the exported image and the label calculations must match the same resolution.
-
-### `DatasetFileUtils`
-
-`DatasetFileUtils` is the small C++ helper included in the project.
-
-It exposes a Blueprint-callable function for saving text content to files. The dataset generator uses this helper to save generated YOLO detection and segmentation labels as `.txt` files.
-
-This was added because Unreal Blueprints do not always provide a simple built-in way to write arbitrary text files directly.
 
 ## Output Dataset Structure
 
