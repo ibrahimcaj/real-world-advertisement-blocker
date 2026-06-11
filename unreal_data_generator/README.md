@@ -216,6 +216,20 @@ The render camera captures the scene into this render target, and the generator 
 
 The render target is an important part of the pipeline because the exported image and the label calculations must match the same resolution.
 
+### `Editable Variables`
+
+The generator also exposes several editable variables that can be adjusted manually for different dataset needs. Camera specific values such as minimum and maximum FOV are controlled through `BP_CameraPoint` actors.
+
+Examples of adjustable settings include:
+
+- total frame count
+- output folders
+- minimum bounding box width and height
+- occlusion tolerance
+- rain chance
+- camera FOV ranges
+- etc.
+
 ## Output Dataset Structure
 
 The generator exports rendered images and matching YOLO label files. Each generated frame uses the same base filename across all output folders.
