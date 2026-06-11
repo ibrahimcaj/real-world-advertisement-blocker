@@ -1,11 +1,13 @@
 # Unreal Synthetic Data Generator
 
 ## Brief Description
+
 This module contains the Unreal Engine 5.6 synthetic data generation pipeline used to create procedurally varied ad images and YOLO labels for object detection and segmentation.
 
 The generator creates rendered images from an Unreal scene and automatically exports matching object detection and segmentation label files.
 
 ## Table of Contents
+
 - [Brief Description](#brief-description)
 - [Project Context](#project-context)
 - [Features](#features)
@@ -18,6 +20,7 @@ The generator creates rendered images from an Unreal scene and automatically exp
 - [Future Improvements](#future-improvements)
 
 ## Project Context
+
 The main project focuses on detecting ads in real and synthetic images/videos using YOLO. This Unreal generator is used only for creating the synthetic portion of the dataset.
 
 The purpose of the synthetic data is to increase dataset variety by generating images under different camera positions, field of view values, lighting conditions, weather conditions, fog, rain, and day/night setups.
@@ -25,6 +28,7 @@ The purpose of the synthetic data is to increase dataset variety by generating i
 The generator also automatically creates YOLO labels for both object detection and segmentation, which reduces the amount of manual labeling needed when preparing training data.
 
 ## Features
+
 - random camera point selection
 - random FOV
 - day/night batches
@@ -36,14 +40,17 @@ The generator also automatically creates YOLO labels for both object detection a
 - Python validation overlays
 
 ## Folder Structure
+
 The unreal_data_generator folder is organized into several smaller parts:
 
+```text
 unreal_data_generator/
-    README.md
-    scripts/
-    source_code/
-    sample_output/
-    unreal_project/
+  README.md
+  scripts/
+  source_code/
+  sample_output/
+  unreal_project/
+```
 
 ### [`scripts/`](scripts/)
 
@@ -57,24 +64,25 @@ Contains the small C++ helper used in Unreal Engine to save generated label text
 
 More details are available in [`source_code/README.md`](source_code/README.md).
 
-### [`sample_output/`]
+### `sample_output/`
 
 Contains a small sample of generated synthetic data. This is not the full synthetic dataset, but only a small example showing the output of the generator.
 
 The sample output includes:
 
+```text
 sample_output/
-    images/
-    labels_detect/
-    labels_seg/
-    debug/
+  images/
+  labels_detect/
+  labels_seg/
+  debug/
+```
 
-### [`unreal_project/`]
+### `unreal_project/`
 
 Contains the Unreal side generator assets that can be reused or migrated into an Unreal Engine project.
 
 The full city/map scene is not included in this repository because it uses third party assets that cannot be redistributed under their standard license.
-
 
 ## Unreal Engine Setup
 
@@ -83,6 +91,7 @@ The generator was built in Unreal Engine 5.6 and uses a Blueprint-based workflow
 The setup is based around a scene containing ad surfaces, manually placed camera points, and custom Blueprint actors used for labeling and image generation.
 
 The main Unreal-side requirements are:
+
 - An Unreal Engine 5.6 project
 - A scene or map containing visible ad surfaces
 - BP_AdTarget actors placed around each ad that should be labeled
@@ -106,79 +115,100 @@ The basic setup process is:
 
 ## Blueprint System Overview
 
-## Output Dataset Structure 
+## Output Dataset Structure
+
 The generator exports rendered images and matching YOLO label files. Each generated frame uses the same base filename across all output folders.
 
 Example:
 
+```text
 images/frame_0.png
 labels_detect/frame_0.txt
 labels_seg/frame_0.txt
+```
 
 The generated dataset is organized into separate folders:
 
+```text
 output_dataset/
   images/
   labels_detect/
   labels_seg/
+```
 
-[`images/`]
+### `images/`
 
 Contains the rendered images exported from Unreal Engine.
 
 Example:
 
+```text
 images/frame_0.png
 images/frame_1.png
 images/frame_2.png
+```
 
-[`labels_detect/`]
+### `labels_detect/`
 
 Contains YOLO object detection label files. Each .txt file matches an image with the same base name.
 
 Example:
 
+```text
 images/frame_0.png
 labels_detect/frame_0.txt
+```
 
 Detection labels use the YOLO bounding box format:
 
+```text
 class x_center y_center width height
+```
 
 All coordinate values are normalized between 0 and 1.
 
 Example:
 
+```text
 0 0.309059 0.422695 0.051761 0.024552
+```
 
-[`labels_seg/`]
+### `labels_seg/`
 
 Contains YOLO segmentation label files. Each .txt file also matches an image with the same base name.
 
 Example:
 
+```text
 images/frame_0.png
 labels_seg/frame_0.txt
+```
 
 Segmentation labels use YOLO polygon format:
 
+```text
 class x1 y1 x2 y2 x3 y3 x4 y4
+```
 
 For this synthetic ad dataset, each ad is represented as a four-point rectangle. All coordinate values are normalized between 0 and 1.
 
 Example:
 
+```text
 0 0.283178 0.410419 0.334939 0.410419 0.334939 0.434971 0.283178 0.434971
+```
 
-[`debug/`]
+### `debug/`
 
 Contains validation overlay images created by the Python validation script. These images are not used for training, but they help visually confirm that the exported labels match the generated images.
 
 Example:
 
+```text
 debug/frame_0_debug.png
 debug/frame_1_debug.png
 debug/frame_2_debug.png
+```
 
 The full generated synthetic dataset is stored separately in the main dataset folder of the project.
 
@@ -216,4 +246,3 @@ Possible future improvements for the Unreal synthetic data generator include:
 - Add stronger quality checks to skip images with no visible ads or too many occluded labels.
 - Improve camera point generation so useful camera views can be created more automatically.
 - Add support for additional object classes beyond advertisements.
-
