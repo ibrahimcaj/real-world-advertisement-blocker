@@ -113,6 +113,12 @@ The basic setup process is:
 5. Configure output folders, frame count, minimum label size, and occlusion settings.
 6. Press Play to generate images and matching YOLO label files.
 
+## Demo Video
+
+A short demo video is included to show the Unreal synthetic data generator workflow.
+
+[Watch the generator demo](docs/videos/generator_demo.mp4)
+
 ## Blueprint System Overview
 
 This section explains the main Unreal Engine assets used by the synthetic data generator. The system is built mostly with Blueprints, with one small C++ helper used for saving text files.
