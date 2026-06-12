@@ -1,0 +1,1 @@
+- ALWAYS make the most simple and shortest changes possible. Code MUST be commented not _what_ a line or block does, but _why_.
