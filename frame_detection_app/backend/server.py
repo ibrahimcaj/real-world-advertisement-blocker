@@ -1,4 +1,4 @@
-import glob
+import os
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -16,14 +16,15 @@ app.add_middleware(
 )
 
 def load_model():
-    # ultralytics handles .pt natively including nms and postprocessing
-    matches = glob.glob("models/*.pt")
-    if matches:
-        from ultralytics import YOLO
-        path = matches[0]
-        print(f"loading model: {path}")
-        return YOLO(path), path
-    return None, None
+    # resolve relative to this file so cwd doesn't matter
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "models", "bounding_best.pt")
+    path = os.path.normpath(path)
+    if not os.path.exists(path):
+        print(f"model not found: {path}")
+        return None, None
+    from ultralytics import YOLO
+    print(f"loading model: {path}")
+    return YOLO(path), path
 
 model, model_path = load_model()
 
