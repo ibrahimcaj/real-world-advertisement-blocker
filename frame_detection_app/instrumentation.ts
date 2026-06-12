@@ -5,19 +5,32 @@ export async function register() {
   const { spawnSync, spawn } = await import("child_process");
   const path = await import("path");
 
+  const fs = await import("fs");
+  const crypto = await import("crypto");
+
   const backendDir = path.resolve(process.cwd(), "backend");
+  const reqFile   = path.join(backendDir, "requirements.txt");
+  const hashFile  = path.join(backendDir, ".req_hash");
 
-  console.log("[backend] installing requirements...");
-  const install = spawnSync("python3", ["-m", "pip", "install", "-r", "requirements.txt"], {
-    cwd: backendDir,
-    stdio: "inherit",
-  });
+  // only reinstall when requirements.txt content changes
+  const currentHash = crypto.createHash("md5").update(fs.readFileSync(reqFile)).digest("hex");
+  const cachedHash  = fs.existsSync(hashFile) ? fs.readFileSync(hashFile, "utf8").trim() : "";
 
-  if (install.status !== 0) {
-    console.error("[backend] pip install failed — python server will not start");
-    return;
+  if (currentHash !== cachedHash) {
+    console.log("[backend] requirements changed, installing...");
+    const install = spawnSync("python3", ["-m", "pip", "install", "-r", "requirements.txt"], {
+      cwd: backendDir,
+      stdio: "inherit",
+    });
+    if (install.status !== 0) {
+      console.error("[backend] pip install failed — python server will not start");
+      return;
+    }
+    fs.writeFileSync(hashFile, currentHash);
+    console.log("[backend] requirements ok");
+  } else {
+    console.log("[backend] requirements up to date, skipping install");
   }
-  console.log("[backend] requirements ok");
 
   console.log("[backend] starting server...");
   const server = spawn("python3", ["server.py"], {
