@@ -1,9 +1,9 @@
-import { spawnSync, spawn } from "child_process";
-import path from "path";
-
 export async function register() {
-  // instrumentation runs in both edge and node runtimes; spawning a process only works in node
+  // dynamic imports so the edge bundler never sees node-only modules
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
+
+  const { spawnSync, spawn } = await import("child_process");
+  const path = await import("path");
 
   const backendDir = path.resolve(process.cwd(), "backend");
 
