@@ -158,6 +158,7 @@ For this reason, synthetic data is used as an addition to real-world data, not a
 
 # Future Work
 Several improvements are planned for future versions of the project.
+
 **Improve Segmentation**<br>
 One of the main future goals is to improve the segmentation model. A successful segmentation approach would allow the system to blur only the exact advertisement area instead of blurring the entire rectangular bounding box.
 This would make the output cleaner and more visually accurate, especially for irregularly shaped advertisements, posters, banners, and signs.
