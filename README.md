@@ -1,5 +1,13 @@
 # real-world-advertisement-blocker
 
+https://github.com/user-attachments/assets/rendered-bounding-box.mp4
+
+*Bounding box overlay — detected advertisements highlighted with labelled boxes*
+
+https://github.com/user-attachments/assets/rendered-blur.mp4
+
+*Blur mode — detected advertisement regions replaced with Gaussian blur*
+
 This project develops an AI-based system for detecting real-world advertisements in images and video streams and automatically filtering them by blurring the detected advertisement regions.
 
 The current implementation uses YOLOv8 object detection to locate advertisements and applies a blur effect to the predicted bounding boxes. The long-term goal is to create a system that can reduce unwanted visual advertising in recorded media, live video, and future AR or smart-glasses environments.
@@ -96,12 +104,12 @@ To train and evaluate the advertisement detection model, we combined multiple da
 
 The final dataset consists of approximately **2500 images**.
 
-| Dataset source | Approximate size | Description |
-|---|---:|---|
-| Outdoor Advertising Dataset | 2200+ images | A foundational labeled advertisement dataset downloaded from Roboflow |
-| Locally collected dataset | 111 images | Additional real-world advertisement images captured across Bosnia & Herzegovina |
-| Synthetic dataset | 200 images | Procedurally generated advertisement scenes created using Blender and Unreal Engine 5.6 |
-| Total | ~2500 images | Combined dataset used for training and evaluation |
+| Dataset source              | Approximate size | Description                                                                             |
+| --------------------------- | ---------------: | --------------------------------------------------------------------------------------- |
+| Outdoor Advertising Dataset |     2200+ images | A foundational labeled advertisement dataset downloaded from Roboflow                   |
+| Locally collected dataset   |       111 images | Additional real-world advertisement images captured across Bosnia & Herzegovina         |
+| Synthetic dataset           |       200 images | Procedurally generated advertisement scenes created using Blender and Unreal Engine 5.6 |
+| Total                       |     ~2500 images | Combined dataset used for training and evaluation                                       |
 
 ### Outdoor Advertising Dataset
 
@@ -176,12 +184,102 @@ This combination was chosen to improve the model's ability to generalize to real
 
 ---
 
-## Model Architecture & Methodology
+## Pipeline Architecture & Methodology
 
-**DODATI**
+### Overview
+
+The system detects and removes real-world advertisements from any visual input - a static image, a recorded video, or a live webcam feed. Detection is a two-stage process: a YOLO model first localises each advertisement with a bounding box, then a ResNet50-based keypoint model refines that region to a precise four-corner polygon. That polygon is blurred and composited back over the original frame, and the result is either displayed as a live overlay or assembled into a downloadable video file.
 
 ---
 
+The system accepts input from three sources: a single image, a video file, or a webcam feed. Regardless of the source, each frame is converted into a JPEG image and sent to the backend for processing.
+
+First, a YOLO object detection model (`bounding_best.pt`) analyzes the image and identifies objects of interest. For each detected object, it returns a bounding box, a class label, and a confidence score.
+
+Next, each detected object is cropped from the image and resized to 224×224 pixels. These crops are passed to a ResNet50-based keypoint regression model (`best_point.keras`), which predicts the positions of the four corners of the target object. The model outputs the coordinates of the top-left, top-right, bottom-right, and bottom-left corners.
+
+The predicted corner points are then mapped back from the cropped image to their original positions in the full frame. Using these four points, the system creates a polygon mask that precisely outlines the detected object.
+
+A Gaussian blur is applied only within this polygonal region, leaving the rest of the image unchanged.
+
+Finally, the blurred region is blended back onto the original frame using the polygon mask, producing the final processed image.
+
+The output depends on the input source:
+
+- For webcam streams, the processed frames are displayed in real time on a canvas at the model's inference speed.
+- For video files, each processed frame is recorded and combined into a WebM video, which is made available for download once processing is complete.
+- For static images, the final processed image is returned immediately.
+
+---
+
+### Stage 1 - YOLO Detection
+
+**Model:** `bounding_best.pt` (YOLOv11, fine-tuned)
+
+The YOLO model runs on the full input frame and returns axis-aligned bounding boxes for every detected advertisement. Each detection carries a normalised `[x1, y1, x2, y2]` box, a `class_id`, and a `confidence` score. Boxes below a confidence threshold are discarded by Ultralytics' built-in NMS before results are returned.
+
+**Training data** was assembled from three sources:
+
+- Real-world images annotated via Roboflow
+- Additional collected images labelled with bounding boxes
+- Synthetic frames rendered in Unreal Engine using the bundled `unreal_data_generator`, which outputs YOLO-format label files alongside each rendered frame
+
+The model is served via FastAPI (`backend/server.py`) and receives frames as multipart JPEG uploads over a local HTTP connection.
+
+---
+
+### Stage 2 - Keypoint Regression
+
+**Model:** `best_point.keras` (ResNet50 backbone, frozen → fine-tuned)
+
+A bounding box is a rectangle and may include background that surrounds a tilted or perspective-distorted billboard. The keypoint model tightens this to a quadrilateral by predicting the four physical corners of the advertisement surface.
+
+**Architecture:**
+
+```
+ResNet50 (ImageNet weights, 224×224 input)
+    └── GlobalAveragePooling (built into ResNet top removal)
+    └── Flatten
+    └── Dense(256) + ReLU
+    └── Dense(8)          ← [tl_x, tl_y, tr_x, tr_y, br_x, br_y, bl_x, bl_y]
+```
+
+The output is 8 continuous values, each normalised to `[0, 1]` within the crop. Huber loss is used during training because it is less sensitive to the occasional outlier keypoint annotation than MSE.
+
+**Training procedure:**
+
+1. **Phase 1 - feature extraction:** ResNet50 weights frozen; only the Dense head trained for initial convergence.
+2. **Phase 2 - fine-tuning:** ResNet50 unfrozen; entire network trained end-to-end at a lower learning rate (`1e-5`).
+
+Callbacks: `ModelCheckpoint` (saves best validation loss), `EarlyStopping` (patience 8), `ReduceLROnPlateau` (patience 4, factor 0.5).
+
+**Training data** is a set of YOLO-cropped advertisement images labelled with four corner keypoints (`tl`, `tr`, `br`, `bl`) exported from Label Studio as a JSON annotation file.
+
+---
+
+### Stage 3 - Polygon Mask and Blur
+
+Once the four corners are known in crop-local coordinates they are mapped back to full-frame pixel coordinates by:
+
+```
+frame_x = box_x1 + keypoint_x * (box_x2 - box_x1)
+frame_y = box_y1 + keypoint_y * (box_y2 - box_y1)
+```
+
+A filled convex polygon is drawn from these four points to produce a binary mask. A Gaussian blur kernel - sized relative to the detection area so small and large ads blur proportionally - is applied to the full frame, and then the blurred result is composited onto the original using the polygon mask as the blending weight.
+
+---
+
+### Stage 4 - Compositing and Output
+
+The composited frame replaces the source in the rendering pipeline:
+
+- **Live / streaming mode:** The processed frame is drawn onto an HTML5 `<canvas>` element that sits exactly over the `<video>` element. The canvas is updated at the configured inference FPS via `requestAnimationFrame`.
+- **Render-to-file mode:** Each processed frame is committed to a `MediaRecorder` stream via `canvas.captureStream(0)` + `track.requestFrame()`. When all frames are processed the recorder is stopped and the accumulated chunks are offered to the user as a `.webm` download.
+
+The backend is stateless per request: it receives a raw frame, runs both models, and returns JSON. All rendering, masking, and blurring logic runs in the browser.
+
+---
 
 ## Object Detection Results
 
@@ -189,13 +287,13 @@ The object detection model was trained on the merged dataset containing the down
 
 The current object detection results are:
 
-| Metric | Value |
-|---|---:|
+| Metric    | Value |
+| --------- | ----: |
 | Precision | 0.570 |
-| Recall | 0.576 |
-| F1 score | 0.573 |
-| mAP50 | 0.594 |
-| mAP50-95 | 0.435 |
+| Recall    | 0.576 |
+| F1 score  | 0.573 |
+| mAP50     | 0.594 |
+| mAP50-95  | 0.435 |
 
 These results show that the model is able to detect advertisement regions, while still leaving room for improvement. The precision and recall values are relatively balanced, which means the model does not strongly favor either over-detecting or missing advertisements. The mAP50 score is higher than the stricter mAP50-95 score, which is expected because mAP50-95 evaluates localization quality across multiple IoU thresholds.
 
@@ -221,11 +319,84 @@ The training curves for the segmentation experiment are shown below:
 
 ---
 
-## Repository Structure
+## Repository Structure & Setup
 
-Setup / Installation / How to Run,
+### Structure
 
-**DODATI**
+- `frame_detection_app/` — the Next.js web app. `app/` is the page, `components/` holds the video detector UI, `backend/` holds the Python FastAPI server and its startup script
+- `models/` — trained model weights (`bounding_best.pt`). Not committed if large; place files here manually
+- `notebooks/` — two Colab training notebooks: `yolo_detection.ipynb` trains the YOLO bounding box model, `keypoint_model.ipynb` trains the ResNet50 corner keypoint model
+- `datasets/` — raw training data split into `additional/` (real-world photos with labels) and `synthetic/` (Unreal Engine renders with auto-generated labels)
+- `unreal_data_generator/` — the Unreal Engine project used to generate synthetic training data; `source_code/` is the C++ plugin, `unreal_project/` has blueprints and render targets, `scripts/` has a label validation utility
+- `docs/` — training graphs (loss curves, detection metrics)
+- `videos/` — sample output videos showing bounding box and blur render modes
+- `PIPELINE.md` — full architecture and methodology writeup
+
+### Setup
+
+Prerequisites
+
+- Node.js 18+ and pnpm (npm i -g pnpm)
+- Python 3.10+
+
+---
+
+1. Clone the repo
+
+git clone https://github.com/ibrahimcaj/real-world-advertisement-blocker.git
+cd real-world-advertisement-blocker
+
+---
+
+2. Install Next.js packages
+
+cd frame_detection_app
+pnpm install
+
+---
+
+3. Install Python dependencies
+
+python3 -m pip install -r frame_detection_app/backend/requirements.txt
+
+This installs: fastapi, uvicorn, ultralytics, pillow, python-multipart.
+
+> Apple Silicon users: if you get an incompatible architecture error for `pydantic-core`, run:
+> `pip3 install --force-reinstall pydantic-core`
+
+---
+
+4. Place the model
+
+The YOLO model file should be placed at:
+models/bounding_best.pt (repo root, not inside frame_detection_app)
+
+The backend resolves this path automatically relative to server.py.
+
+---
+
+5. Run
+
+Open two terminals:
+
+Terminal 1, Python backend:
+python3 frame_detection_app/backend/start.py
+This installs deps if requirements.txt changed, then starts the FastAPI server on
+http://localhost:8000.
+
+Terminal 2, Next.js frontend:
+cd frame_detection_app
+pnpm dev
+Opens on http://localhost:3000.
+
+---
+
+6. Verify
+
+- Open http://localhost:3000
+- The sidebar should show "Model ready" in grey, if it says "Server offline" the Python backend
+  isn't running
+- Load a video file, hit Render video
 
 ---
 
