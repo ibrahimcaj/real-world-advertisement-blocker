@@ -1,349 +1,213 @@
-# Unreal Synthetic Data Generator
+# real-world-advertisement-blocker
+
+<br> This project develops an AI-based system for detecting real-world advertisements in images and video streams and automatically filtering them by blurring the detected advertisement regions.
+<br>The current implementation uses YOLOv8 object detection to locate advertisements and applies a blur effect to the predicted bounding boxes. The long-term goal is to create a system that can reduce unwanted visual advertising in recorded media, live video, and future AR or smart-glasses environments.
+# Problem Definition & Motivation
+Advertisements are present in many public and digital visual environments: billboards, posters, banners, shop signs, digital panels, street advertisements, and branded surfaces. When people take photos, record videos, or use AR devices, these advertisements often become part of the captured scene without the user having control over them.<br>
+This creates several problems:<br>
+**Lack of consumer control:** users cannot easily choose whether advertisements appear in their photos, videos, or visual field.<br>
+**Cognitive overload:** dense public environments already contain a large amount of visual information, and advertisements add even more unnecessary content.<br>
+**Visual pollution:** advertisements can dominate streets, buildings, and public spaces.<br>
+**Branding issues:** unwanted logos and promotional content may appear in user-generated content.<br>
+**AR and smart-glasses clutter:** future AR devices may make visual clutter even more noticeable if advertisements are not filtered.<br>
+**Privacy and content moderation concerns:** recorded or streamed content may contain unwanted commercial or sensitive visual material.<br>
+
+The problem addressed by this project is therefore:
+How can we automatically detect real-world advertisements in images and video streams and visually filter them in real time?
+
+# Proposed Solution
+The proposed solution is a computer vision pipeline that detects advertisement regions and applies automatic visual filtering.<br>
+The basic workflow is:<br>
+Input image or video frame <br>
+        ↓ <br>
+YOLOv8 advertisement detection <br>
+        ↓ <br>
+Bounding box prediction<br>
+        ↓ <br>
+Blur detected advertisement regions <br>
+        ↓ <br>
+Filtered output image or video <br>
+
+Instead of manually editing images or videos, the system automatically finds advertisement regions and blurs them. This makes the approach useful for both static images and video-based applications.
+
+# Core Functionality
+The current version of the project focuses on: <br>
+
+detecting advertisements in real-world images <br>
+detecting advertisements in video frames <br>
+returning bounding boxes around detected ads <br>
+blurring the detected advertisement regions <br>
+testing the model on real, local, downloaded, and synthetic data <br>
+
+The current main task is **object detection**. A segmentation-based version was also explored, but it is not yet reliable enough to be used as the final solution.
+
+# Applications
+Possible applications of this project include: <br>
+
+**Content moderation:** removing or hiding unwanted advertisements from images or videos. <br>
+**Privacy protection:** reducing the visibility of branded or promotional content in recorded media. <br>
+**AR / smart glasses:** filtering visual clutter from real-world environments.<br>
+**Automatic visual filtering:** blurring advertisement regions without manual editing.<br>
+**Selective ad filtering:** detecting only specific types of advertisements, such as betting, alcohol, banners, billboards, panels, or digital screens. <br>
+**Sponsorship-aware filtering:** using the same idea in reverse, for example blurring everything except selected sponsor advertisements. <br>
+
+#  Current Status
+The project currently includes: <br>
+a YOLOv8-based object detection pipeline <br>
+a combined dataset from multiple sources <br>
+locally collected advertisement images from Bosnia & Herzegovina <br>
+synthetic data generated using Blender and Unreal Engine 5.6 <br>
+image and video inference experiments <br>
+automatic blurring of detected advertisement bounding boxes <br>
+an experimental segmentation approach that requires further improvement <br>
+
+Final quantitative results will be added after model training and evaluation are completed. <br>
+
+# Dataset & Data Preparation
+To train and evaluate the advertisement detection model, we combined multiple data sources. This was done to make the dataset more diverse and to improve the model's ability to recognize advertisements in different environments, formats, lighting conditions, and camera perspectives.
+
+The final dataset consists of approximately **2500 images** <br>
+**OVDJE SAD FALI DIO**
+
+**Outdoor Advertising Dataset**<br>
+The primary dataset used in this project was an outdoor advertising dataset from Roboflow. This dataset provided more than 2200 labeled images and served as the foundation for training the initial advertisement detection model.<br>
+This dataset was useful because it already contained real-world outdoor advertisement examples, including billboards, posters, panels, and other advertisement formats. However, because the visual appearance of advertisements can vary significantly between countries, cities, and environments, we decided to expand the dataset with additional local and synthetic examples.
+
+**Locally Collected Dataset**<br>
+To make the model more relevant to our environment, we collected an additional dataset of #111 real-world images# from Bosnia & Herzegovina. These images were taken in local streets, roads, and urban environments where advertisements appear in forms such as billboards, shop signs, posters, banners, and panels.<br>
+This part of the dataset was important because advertisements in Bosnia & Herzegovina may differ from the downloaded dataset in terms of language, design style, placement, street layout, lighting, and background objects.<br>
+The locally collected images were manually labeled by drawing bounding boxes around visible advertisement regions. These annotations were then prepared for YOLOv8 object detection training. **TREBA SPOMENUTI LABEL STUDIO I neke još**
+
+**Synthetic Dataset**<br>
+In addition to real-world data, we created a synthetic dataset of approximately 200 images using Unreal Engine 5.6. The goal of this dataset was to increase visual diversity and simulate real-world advertisement scenarios that may not appear often enough in the collected data.
+The synthetic data generation process allowed us to control and vary different scene parameters, such as:
+advertisement size
+advertisement position
+camera field of view
+camera distance and angle
+lighting conditions
+environmental layout
+weather conditions
+occlusion level
+day and night scenarios
+This made it possible to create additional training examples in controlled but varied environments. Synthetic data was especially useful for testing the model on cases where advertisements appear under different conditions, such as unusual angles, partial occlusion, different scales, or different lighting.
+This part of the project is documented separately in more detail:
+unreal_data_generator/README.md
+That README explains the Unreal Engine setup, procedural generation process, configurable parameters, and how the generated images and annotations are produced.
+
+**Data Cleaning**<br>
+Before training, the dataset was reviewed and cleaned. The preparation process included:
+removing duplicate images
+removing irrelevant or unusable images
+checking whether advertisements were clearly visible
+checking annotation quality
+preparing the data in the correct YOLO format
+organizing the dataset into training, validation, and testing subsets
+This step was necessary to reduce noise in the dataset and improve the quality of the model training process.
+
+**Data Labeling**<br>
+The labeling process focused on marking advertisement regions using bounding boxes. Each visible advertisement was labeled as an object that the YOLOv8 model should detect.
+The locally collected dataset was manually labeled because these images did not already contain annotations. The downloaded dataset was also reviewed and adjusted where needed.
+We also explored additional labeling for segmentation, where the goal was to mark the exact advertisement area instead of only a rectangular bounding box. However, the segmentation approach did not yet produce reliable enough results, so the current working version of the project focuses on object detection with bounding boxes.
+
+**Dataset Purpose**<br>
+Using three different data sources helped us cover a wider range of advertisement appearances:
+the downloaded dataset provided a large base of labeled outdoor advertisements
+the locally collected dataset added examples from Bosnia & Herzegovina
+the synthetic dataset added controlled variation through procedural generation
+This combination was chosen to improve the model's ability to generalize to real-world images and videos.
+
+# Model Architecture & Methodology 
+**DODATI**
+# Repository Structure 
+Setup / Installation / How to Run, 
+**DODATI**
+
+# Current Limitations
+Although the current object detection pipeline provides a functional first version of advertisement filtering, there are still several limitations.
+
+**Bounding Box Precision**<br>
+The current system uses object detection, which means that advertisements are detected using rectangular bounding boxes. This works well for locating advertisements, but it is not always visually precise. If an advertisement has an irregular shape, the blur may also cover parts of the background around the ad.
+A segmentation-based approach would be more precise because it could follow the exact borders of the advertisement. However, the current segmentation experiment does not yet produce reliable enough results for final use.
+
+**Segmentation Performance**<br>
+We experimented with segmentation because it would allow cleaner and more accurate advertisement filtering. However, the segmentation model currently performs poorly in several cases, especially when advertisements are small, partially occluded, placed at difficult angles, or surrounded by complex backgrounds.
+Because of this, segmentation is currently treated as an experimental direction rather than the main working solution.
+
+**Dataset Coverage**<br>
+The combined dataset includes downloaded, locally collected, and synthetic images, but advertisements appear in many different formats and environments. The current dataset may still not cover all possible real-world cases, such as:
+very small advertisements
+heavily occluded advertisements
+digital screens
+unusual billboard shapes
+advertisements at night
+advertisements in bad weather
+reflections or motion blur
+text-heavy signs that are not advertisements
+This means that the model may still fail or produce false detections in some real-world situations.
+
+**False Positives**<br>
+The model may sometimes confuse advertisements with visually similar objects, such as shop signs, posters, road signs, banners, logos, or text-heavy surfaces. This is a difficult problem because the boundary between an advertisement and a regular sign is not always visually obvious.
+
+**Real-Time Performance**<br>
+The project is designed with real-time or near-real-time filtering in mind, but the actual performance depends on the model size, input resolution, hardware, and video quality. Higher accuracy models may process frames more slowly, while smaller models may be faster but less accurate.
+
+**Synthetic Data Gap**<br>
+Synthetic data is useful for increasing variation and testing controlled scenarios, but it cannot fully replace real-world data. Generated environments may still differ from real images in texture quality, lighting realism, object placement, and background complexity.
+For this reason, synthetic data is used as an addition to real-world data, not as a full replacement.
+
+# Future Work
+Several improvements are planned for future versions of the project.
+
+**Improve Segmentation**<br>
+One of the main future goals is to improve the segmentation model. A successful segmentation approach would allow the system to blur only the exact advertisement area instead of blurring the entire rectangular bounding box.
+This would make the output cleaner and more visually accurate, especially for irregularly shaped advertisements, posters, banners, and signs.
+
+**Expand the Dataset**<br>
+The dataset can be improved by collecting and labeling more real-world advertisement images. Future data collection should focus on difficult cases, such as:
+night scenes
+rainy or snowy conditions
+low-light environments
+small advertisements
+partially hidden advertisements
+digital billboards
+advertisements from different cities and countries
+different camera angles and distances
+Adding more diverse examples would help the model generalize better to real-world images and videos.
+
+**Improve Synthetic Data Generation**<br>
+The synthetic data generation pipeline can also be expanded. Future improvements could include more realistic environments, more advertisement formats, better lighting variation, more weather conditions, and more complex occlusion scenarios.
+The synthetic generation system could also be used to create specific difficult examples that are rare in the real dataset.
+
+**Optimize for Real-Time Video**<br>
+Future work should include optimization for real-time video processing. This could involve:
+testing smaller YOLOv8 model variants
+reducing input resolution
+using GPU acceleration
+improving frame processing speed
+optimizing video reading and writing
+testing the model on live camera input
+This would make the project more suitable for real-time applications such as AR devices, smart glasses, or live video filtering.
+
+**Improve Evaluation**<br>
+After the final training is completed, the model should be evaluated using standard object detection metrics such as precision, recall, mAP50, mAP50-95, and inference speed.
+Future evaluation should also include visual comparisons on real images, synthetic images, and video examples. This would make it easier to understand not only the numerical performance of the model, but also its practical usefulness.
+
+**Deployment Possibilities**<br>
+In the future, the project could be developed into a more complete application or prototype. Possible deployment directions include:
+desktop image/video filtering tool
+live webcam filtering
+mobile application
+browser-based demo
+AR/smart-glasses prototype
+content moderation pipeline
+These directions would require additional optimization, testing, and user interface development.
 
-## Brief Description
 
-This module contains the Unreal Engine 5.6 synthetic data generation pipeline used to create procedurally varied ad images and YOLO labels for object detection and segmentation.
 
-The generator creates rendered images from an Unreal scene and automatically exports matching object detection and segmentation label files.
 
-## Table of Contents
 
-- [Brief Description](#brief-description)
-- [Project Context](#project-context)
-- [Features](#features)
-- [Folder Structure](#folder-structure)
-- [Unreal Engine Setup](#unreal-engine-setup)
-- [Blueprint System Overview](#blueprint-system-overview)
-- [Output Dataset Structure](#output-dataset-structure)
-- [Limitations](#limitations)
-- [Licensing and Asset Notice](#licensing-and-asset-notice)
-- [Future Improvements](#future-improvements)
 
-## Project Context
 
-The main project focuses on detecting ads in real and synthetic images/videos using YOLO. This Unreal generator is used only for creating the synthetic portion of the dataset.
 
-The purpose of the synthetic data is to increase dataset variety by generating images under different camera positions, field of view values, lighting conditions, weather conditions, fog, rain, and day/night setups.
 
-The generator also automatically creates YOLO labels for both object detection and segmentation, which reduces the amount of manual labeling needed when preparing training data.
-
-## Features
-
-- random camera point selection
-- random FOV
-- day/night batches
-- weather/fog/rain variation
-- SceneCapture2D image export
-- YOLO detection labels
-- YOLO segmentation polygon labels
-- basic occlusion filtering with line traces
-- Python validation overlays
-
-## Folder Structure
-
-The unreal_data_generator folder is organized into several smaller parts:
-
-```text
-unreal_data_generator/
-  README.md
-  scripts/
-  source_code/
-  sample_output/
-  unreal_project/
-```
-
-### [`scripts/`](scripts/)
-
-Contains the Python validation script used to draw exported labels over the generated images. This is used to visually check whether the YOLO detection boxes and segmentation polygons match the rendered ads.
-
-More details are available in [`scripts/README.md`](scripts/README.md).
-
-### [`source_code/`](source_code/)
-
-Contains the small C++ helper used in Unreal Engine to save generated label text files from Blueprints.
-
-More details are available in [`source_code/README.md`](source_code/README.md).
-
-### [`sample_output/`](sample_output/)
-
-Contains a small sample of generated synthetic data. This is not the full synthetic dataset, but only a small example showing the output of the generator.
-
-The sample output includes:
-
-```text
-sample_output/
-  images/
-  labels_detect/
-  labels_seg/
-  debug/
-```
-
-### [`unreal_project/`](unreal_project/)
-
-Contains the Unreal side generator assets that can be reused or migrated into an Unreal Engine project.
-
-The full city/map scene is not included in this repository because it uses third party assets that cannot be redistributed under their standard license.
-
-## Unreal Engine Setup
-
-The generator was built in Unreal Engine 5.6 and uses a Blueprint-based workflow with a small C++ helper for saving text files.
-
-The setup is based around a scene containing ad surfaces, manually placed camera points, and custom Blueprint actors used for labeling and image generation.
-
-The main Unreal-side requirements are:
-
-- An Unreal Engine 5.6 project
-- A scene or map containing visible ad surfaces
-- BP_AdTarget actors placed around each ad that should be labeled
-- BP_CameraPoint actors placed at possible camera positions
-- A BP_RenderCamera actor with a SceneCaptureComponent2D
-- A render target used for exporting generated images
-- BP_DatasetGenerator placed in the level to control the generation loop
-- BP_WeatherController for fog and weather variation
-- The DatasetFileUtils C++ helper compiled into the project for saving .txt label files
-
-The original scene used for this generator is not included in this public repository because it contains third party city assets. To reproduce the setup, the generator Blueprints can be reused in another Unreal project with a different map or placeholder environment.
-
-The basic setup process is:
-
-1. Add the generator Blueprints to an Unreal Engine 5.6 project.
-2. Place ad target boxes around the ads that should be labeled.
-3. Place camera points around the scene.
-4. Assign class IDs to the ad targets.
-5. Configure output folders, frame count, minimum label size, and occlusion settings.
-6. Press Play to generate images and matching YOLO label files.
-
-## Blueprint System Overview
-
-This section explains the main Unreal Engine assets used by the synthetic data generator. The system is built mostly with Blueprints, with one small C++ helper used for saving text files.
-
-### `BP_DatasetGenerator`
-
-![BP_DatasetGenerator Blueprint](docs/images/BP_DatasetGenerator.png)
-
-`BP_DatasetGenerator` is the main controller for the synthetic data generation process.
-
-It handles the full generation loop:
-
-1. Selects a random camera point.
-2. Applies a random camera FOV.
-3. Applies weather, fog, and rain variation.
-4. Saves the rendered image.
-5. Generates YOLO detection labels.
-6. Generates YOLO segmentation labels.
-7. Saves both label files.
-8. Repeats the process until the selected number of frames is generated.
-
-This Blueprint also stores important generation settings such as output folders, frame count, minimum label size, occlusion tolerance, and references to the render camera, weather controller, ad targets, and camera points.
-
-It is also responsible for projecting ad target corners from world space into image space. These projected points are used to create both bounding box labels and segmentation polygon labels.
-
-### `BP_RenderCamera`
-
-`BP_RenderCamera` is the camera actor used for capturing dataset images.
-
-It contains the camera and `SceneCaptureComponent2D` used to render images into the render target. The generator moves this actor to different camera points and updates its FOV during generation.
-
-The render camera is responsible for:
-
-- matching the camera FOV with the SceneCapture2D FOV
-- capturing the current scene view
-- exporting the render target image
-- providing the camera information needed for label projection
-
-This ensures that the generated image and the exported labels are based on the same camera position and FOV.
-
-### `BP_AdTarget`
-
-![BP_AdTarget Blueprint](docs/images/BP_AdTarget.png)
-
-`BP_AdTarget` represents one ad that should be labeled in the generated dataset.
-
-Each ad target uses a box component placed around the visible ad surface. The corners of this box are used to calculate both object detection bounding boxes and segmentation polygons.
-
-Important information stored in each ad target includes:
-
-- the ad class ID
-- the ad label box
-- the world-space center of the ad
-- the world-space corner points of the ad rectangle
-
-The ad center is used for basic occlusion filtering, while the four corners are used for projection into the final image.
-
-### `BP_CameraPoint`
-
-![BP_CameraPoint Variables](docs/images/BP_CameraPoint.png)
-
-`BP_CameraPoint` represents a possible camera position in the scene.
-
-The dataset generator randomly selects one of these camera points for each generated frame. This creates variation in camera angle, distance, and composition.
-
-Each camera point can also store a minimum and maximum FOV value. During generation, the system randomly selects a FOV between those values, allowing different camera points to have different zoom ranges.
-
-Good camera point placement is important because it strongly affects the quality of the generated dataset.
-
-### `BP_WeatherController`
-
-![BP_WeatherController Blueprint](docs/images/BP_WeatherController.png)
-
-`BP_WeatherController` controls the simple environmental variation used during generation.
-
-It manages weather-related settings such as fog density and weather presets. The dataset generator calls this controller to apply random weather conditions before capturing each frame.
-
-The weather controller is used to create visual variety such as:
-
-- clear weather
-- cloudy conditions
-- fog
-- heavier fog
-- rain-enabled scenes
-
-This helps the synthetic dataset include different real-world visual conditions.
-
-### `E_WeatherPreset`
-
-`E_WeatherPreset` is an Unreal enumerator used to define the available weather options.
-
-It is used by the weather controller and dataset generator to select and apply different weather states in a clean and organized way.
-
-Example preset types include clear, cloudy, rainy, foggy, and heavy fog conditions.
-
-### `RT_DatasetCapture`
-
-`RT_DatasetCapture` is the render target used by the SceneCapture2D component.
-
-The render camera captures the scene into this render target, and the generator exports it as an image file. The current setup uses a fixed image resolution, so the label projection logic can calculate normalized YOLO coordinates correctly.
-
-The render target is an important part of the pipeline because the exported image and the label calculations must match the same resolution.
-
-## Output Dataset Structure
-
-The generator exports rendered images and matching YOLO label files. Each generated frame uses the same base filename across all output folders.
-
-Example:
-
-```text
-images/frame_0.png
-labels_detect/frame_0.txt
-labels_seg/frame_0.txt
-```
-
-The generated dataset is organized into separate folders:
-
-```text
-output_dataset/
-  images/
-  labels_detect/
-  labels_seg/
-```
-
-### `images/`
-
-Contains the rendered images exported from Unreal Engine.
-
-Example:
-
-```text
-images/frame_0.png
-images/frame_1.png
-images/frame_2.png
-```
-
-### `labels_detect/`
-
-Contains YOLO object detection label files. Each .txt file matches an image with the same base name.
-
-Example:
-
-```text
-images/frame_0.png
-labels_detect/frame_0.txt
-```
-
-Detection labels use the YOLO bounding box format:
-
-```text
-class x_center y_center width height
-```
-
-All coordinate values are normalized between 0 and 1.
-
-Example:
-
-```text
-0 0.309059 0.422695 0.051761 0.024552
-```
-
-### `labels_seg/`
-
-Contains YOLO segmentation label files. Each .txt file also matches an image with the same base name.
-
-Example:
-
-```text
-images/frame_0.png
-labels_seg/frame_0.txt
-```
-
-Segmentation labels use YOLO polygon format:
-
-```text
-class x1 y1 x2 y2 x3 y3 x4 y4
-```
-
-For this synthetic ad dataset, each ad is represented as a four-point rectangle. All coordinate values are normalized between 0 and 1.
-
-Example:
-
-```text
-0 0.283178 0.410419 0.334939 0.410419 0.334939 0.434971 0.283178 0.434971
-```
-
-### `debug/`
-
-Contains validation overlay images created by the Python validation script. These images are not used for training, but they help visually confirm that the exported labels match the generated images.
-
-Example:
-
-```text
-debug/frame_0_debug.png
-debug/frame_1_debug.png
-debug/frame_2_debug.png
-```
-
-The full generated synthetic dataset is stored separately in the main dataset folder of the project.
-
-## Limitations
-
-This is an early working version of the synthetic data generator, so there are still some limitations:
-
-- Camera points are placed manually, so the quality of generated images depends on good camera placement.
-- Day and night batches are currently handled manually by enabling the desired lighting setup before generation.
-- Occlusion filtering uses a simple line-trace approach, so some edge cases may still require manual checking.
-- Segmentation labels assume that each ad is a flat rectangular surface represented by four corner points.
-- The validation overlays are used only for checking label quality and are not part of the training data.
-
-## Licensing and Asset Notice
-
-The original Unreal scene used during development included third party city/map assets from Fab. These assets are not included in this public repository.
-
-According to the Fab Standard License summary, Fab assets may be used privately or commercially and may be shared with collaborators working on the project, but they may not be resold or redistributed as standalone assets. For this reason, the raw city/map assets are excluded from this repository.
-
-This repository only includes the custom generator logic, helper code, validation script, selected Blueprint assets, documentation, and a small sample output.
-
-To reproduce the original environment, users must either use their own licensed assets from Fab or replace the scene with their own Unreal map/assets.
-
-Fab Standard License: https://www.fab.com/eula
-
-## Future improvements
-
-Possible future improvements for the Unreal synthetic data generator include:
-
-- Add a fully redistributable demo scene using placeholder buildings and ad surfaces.
-- Improve occlusion filtering by tracing to multiple ad points instead of only the ad center.
-- Automate day/night switching instead of changing lighting setups manually.
-- Add more weather and lighting presets for greater visual variety.
-- Add automatic dataset splitting into train, val, and test folders.
-- Add stronger quality checks to skip images with no visible ads or too many occluded labels.
-- Improve camera point generation so useful camera views can be created more automatically.
-- Add support for additional object classes beyond advertisements.
