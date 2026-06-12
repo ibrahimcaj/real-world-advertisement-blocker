@@ -60,6 +60,7 @@ synthetic data generated using Blender and Unreal Engine 5.6 <br>
 image and video inference experiments <br>
 automatic blurring of detected advertisement bounding boxes <br>
 an experimental segmentation approach that requires further improvement <br>
+
 Final quantitative results will be added after model training and evaluation are completed. <br>
 
 # Dataset & Data Preparation
@@ -103,16 +104,19 @@ checking annotation quality
 preparing the data in the correct YOLO format
 organizing the dataset into training, validation, and testing subsets
 This step was necessary to reduce noise in the dataset and improve the quality of the model training process.
+
 <br>**Data Labeling**<br>
 The labeling process focused on marking advertisement regions using bounding boxes. Each visible advertisement was labeled as an object that the YOLOv8 model should detect.
 The locally collected dataset was manually labeled because these images did not already contain annotations. The downloaded dataset was also reviewed and adjusted where needed.
 We also explored additional labeling for segmentation, where the goal was to mark the exact advertisement area instead of only a rectangular bounding box. However, the segmentation approach did not yet produce reliable enough results, so the current working version of the project focuses on object detection with bounding boxes.
+
 <br>**Dataset Purpose**<br>
 Using three different data sources helped us cover a wider range of advertisement appearances:
 the downloaded dataset provided a large base of labeled outdoor advertisements
 the locally collected dataset added examples from Bosnia & Herzegovina
 the synthetic dataset added controlled variation through procedural generation
 This combination was chosen to improve the model's ability to generalize to real-world images and videos.
+
 # Model Architecture & Methodology 
 **DODATI**
 # Repository Structure 
@@ -121,12 +125,15 @@ Setup / Installation / How to Run,
 
 # Current Limitations
 Although the current object detection pipeline provides a functional first version of advertisement filtering, there are still several limitations.
+
 <br>**Bounding Box Precision**<br>
 The current system uses object detection, which means that advertisements are detected using rectangular bounding boxes. This works well for locating advertisements, but it is not always visually precise. If an advertisement has an irregular shape, the blur may also cover parts of the background around the ad.
 A segmentation-based approach would be more precise because it could follow the exact borders of the advertisement. However, the current segmentation experiment does not yet produce reliable enough results for final use.
+
 <br>**Segmentation Performance**<br>
 We experimented with segmentation because it would allow cleaner and more accurate advertisement filtering. However, the segmentation model currently performs poorly in several cases, especially when advertisements are small, partially occluded, placed at difficult angles, or surrounded by complex backgrounds.
 Because of this, segmentation is currently treated as an experimental direction rather than the main working solution.
+
 <br>**Dataset Coverage**<br>
 The combined dataset includes downloaded, locally collected, and synthetic images, but advertisements appear in many different formats and environments. The current dataset may still not cover all possible real-world cases, such as:
 very small advertisements
@@ -138,10 +145,13 @@ advertisements in bad weather
 reflections or motion blur
 text-heavy signs that are not advertisements
 This means that the model may still fail or produce false detections in some real-world situations.
+
 <br>**False Positives**<br>
 The model may sometimes confuse advertisements with visually similar objects, such as shop signs, posters, road signs, banners, logos, or text-heavy surfaces. This is a difficult problem because the boundary between an advertisement and a regular sign is not always visually obvious.
+
 <br>**Real-Time Performance**<br>
 The project is designed with real-time or near-real-time filtering in mind, but the actual performance depends on the model size, input resolution, hardware, and video quality. Higher accuracy models may process frames more slowly, while smaller models may be faster but less accurate.
+
 <br>**Synthetic Data Gap**<br>
 Synthetic data is useful for increasing variation and testing controlled scenarios, but it cannot fully replace real-world data. Generated environments may still differ from real images in texture quality, lighting realism, object placement, and background complexity.
 For this reason, synthetic data is used as an addition to real-world data, not as a full replacement.
@@ -151,6 +161,7 @@ Several improvements are planned for future versions of the project.
 <br>**Improve Segmentation**<br>
 One of the main future goals is to improve the segmentation model. A successful segmentation approach would allow the system to blur only the exact advertisement area instead of blurring the entire rectangular bounding box.
 This would make the output cleaner and more visually accurate, especially for irregularly shaped advertisements, posters, banners, and signs.
+
 <br>**Expand the Dataset**<br>
 The dataset can be improved by collecting and labeling more real-world advertisement images. Future data collection should focus on difficult cases, such as:
 night scenes
@@ -162,9 +173,11 @@ digital billboards
 advertisements from different cities and countries
 different camera angles and distances
 Adding more diverse examples would help the model generalize better to real-world images and videos.
+
 <br>**Improve Synthetic Data Generation**<br>
 The synthetic data generation pipeline can also be expanded. Future improvements could include more realistic environments, more advertisement formats, better lighting variation, more weather conditions, and more complex occlusion scenarios.
 The synthetic generation system could also be used to create specific difficult examples that are rare in the real dataset.
+
 <br>**Optimize for Real-Time Video**<br>
 Future work should include optimization for real-time video processing. This could involve:
 testing smaller YOLOv8 model variants
@@ -175,10 +188,10 @@ optimizing video reading and writing
 testing the model on live camera input
 This would make the project more suitable for real-time applications such as AR devices, smart glasses, or live video filtering.
 
-
 <br>**Improve Evaluation**<br>
 After the final training is completed, the model should be evaluated using standard object detection metrics such as precision, recall, mAP50, mAP50-95, and inference speed.
 Future evaluation should also include visual comparisons on real images, synthetic images, and video examples. This would make it easier to understand not only the numerical performance of the model, but also its practical usefulness.
+
 <br>**Deployment Possibilities**<br>
 In the future, the project could be developed into a more complete application or prototype. Possible deployment directions include:
 desktop image/video filtering tool
