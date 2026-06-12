@@ -207,6 +207,20 @@ During training, the model showed improvement across epochs. The mAP50 increased
 
 ---
 
+## Segmentation Results
+
+We also experimented with a segmentation-based model because segmentation could theoretically provide cleaner filtering by detecting the exact advertisement area instead of only using a rectangular bounding box. However, the segmentation results were not satisfactory enough for the final version of the project.
+
+The model did not produce reliable masks across the tested examples, especially for small advertisements, complex backgrounds, and partially visible advertisement regions. Because of this, we decided not to use the segmentation model in the final pipeline. The final working solution therefore focuses on YOLOv8 object detection and bounding-box blurring.
+
+The training curves for the segmentation experiment are shown below:
+
+![Segmentation Loss Curve](docs/graphs/loss_curve.png)
+
+![Segmentation MAE Curve](docs/graphs/mae_curve.png)
+
+---
+
 ## Repository Structure
 
 Setup / Installation / How to Run,
