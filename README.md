@@ -323,7 +323,7 @@ The training curves for the segmentation experiment are shown below:
 
 ### Structure
 
-- `frame_detection_app/` - the Next.js web app. `app/` is the page, `components/` holds the video detector UI, `backend/` holds the Python FastAPI server and its startup script
+- `app/` - the Next.js web app. `app/` is the page, `components/` holds the video detector UI, `backend/` holds the Python FastAPI server and its startup script
 - `models/` - trained model weights (`bounding_best.pt`). Not committed if large; place files here manually
 - `notebooks/` - two Colab training notebooks: `yolo_detection.ipynb` trains the YOLO bounding box model, `keypoint_model.ipynb` trains the ResNet50 corner keypoint model
 - `datasets/` - raw training data split into `additional/` (real-world photos with labels) and `synthetic/` (Unreal Engine renders with auto-generated labels)
@@ -350,14 +350,14 @@ cd real-world-advertisement-blocker
 
 2. Install Next.js packages
 
-cd frame_detection_app
+cd app
 pnpm install
 
 ---
 
 3. Install Python dependencies
 
-python3 -m pip install -r frame_detection_app/backend/requirements.txt
+python3 -m pip install -r app/backend/requirements.txt
 
 This installs: fastapi, uvicorn, ultralytics, pillow, python-multipart.
 
@@ -380,12 +380,12 @@ The backend resolves this path automatically relative to server.py.
 Open two terminals:
 
 Terminal 1, Python backend:
-python3 frame_detection_app/backend/start.py
+python3 app/backend/start.py
 This installs deps if requirements.txt changed, then starts the FastAPI server on
 http://localhost:8000.
 
 Terminal 2, Next.js frontend:
-cd frame_detection_app
+cd app
 pnpm dev
 Opens on http://localhost:3000.
 
