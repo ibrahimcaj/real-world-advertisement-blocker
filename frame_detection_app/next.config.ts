@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    // required to load instrumentation.ts on startup
-    instrumentationHook: true,
+  turbopack: {
+    // prevents turbopack from picking up the wrong workspace root when multiple lockfiles exist
+    root: ".",
   },
 };
 
