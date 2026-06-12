@@ -501,8 +501,6 @@ Future evaluation should also include visual comparisons on real images, synthet
 
 In the future, the project could be developed into a more complete application or prototype. Possible deployment directions include:
 
-- desktop image/video filtering tool
-- live webcam filtering
 - mobile application
 - browser-based demo
 - AR/smart-glasses prototype
