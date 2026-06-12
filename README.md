@@ -192,48 +192,15 @@ Setup / Installation / How to Run,
 
 ## Current Limitations
 
-Although the current object detection pipeline provides a functional first version of advertisement filtering, there are still several limitations.
+The current version of the project provides a functional object detection pipeline for advertisement filtering, but some limitations still remain.
 
-### Bounding Box Precision
+The main limitation is that the system uses rectangular bounding boxes. This is practical for detection and blurring, but it is not always visually precise, especially when advertisements have irregular shapes or are close to other objects. A segmentation-based approach could solve this more accurately, but the current segmentation experiment is not yet reliable enough for final use.
 
-The current system uses object detection, which means that advertisements are detected using rectangular bounding boxes. This works well for locating advertisements, but it is not always visually precise. If an advertisement has an irregular shape, the blur may also cover parts of the background around the ad.
+The model may also struggle with difficult real-world cases, such as very small advertisements, partial occlusions, unusual angles, low-light scenes, bad weather, or text-heavy objects that look similar to ads. Because advertisements appear in many different formats and environments, more diverse data would help improve generalization.
 
-A segmentation-based approach would be more precise because it could follow the exact borders of the advertisement. However, the current segmentation experiment does not yet produce reliable enough results for final use.
+Real-time performance also depends on the model size, input resolution, hardware, and video quality. Larger models may be more accurate but slower, while smaller models may be faster but less precise.
 
-### Segmentation Performance
-
-We experimented with segmentation because it would allow cleaner and more accurate advertisement filtering. However, the segmentation model currently performs poorly in several cases, especially when advertisements are small, partially occluded, placed at difficult angles, or surrounded by complex backgrounds.
-
-Because of this, segmentation is currently treated as an experimental direction rather than the main working solution.
-
-### Dataset Coverage
-
-The combined dataset includes downloaded, locally collected, and synthetic images, but advertisements appear in many different formats and environments. The current dataset may still not cover all possible real-world cases, such as:
-
-- very small advertisements
-- heavily occluded advertisements
-- digital screens
-- unusual billboard shapes
-- advertisements at night
-- advertisements in bad weather
-- reflections or motion blur
-- text-heavy signs that are not advertisements
-
-This means that the model may still fail or produce false detections in some real-world situations.
-
-### False Positives
-
-The model may sometimes confuse advertisements with visually similar objects, such as shop signs, posters, road signs, banners, logos, or text-heavy surfaces. This is a difficult problem because the boundary between an advertisement and a regular sign is not always visually obvious.
-
-### Real-Time Performance
-
-The project is designed with real-time or near-real-time filtering in mind, but the actual performance depends on the model size, input resolution, hardware, and video quality. Higher accuracy models may process frames more slowly, while smaller models may be faster but less accurate.
-
-### Synthetic Data Gap
-
-Synthetic data is useful for increasing variation and testing controlled scenarios, but it cannot fully replace real-world data. Generated environments may still differ from real images in texture quality, lighting realism, object placement, and background complexity.
-
-For this reason, synthetic data is used as an addition to real-world data, not as a full replacement.
+Finally, synthetic data is useful for adding controlled variation, but it cannot fully replace real-world images. For that reason, it is used as an addition to the downloaded and locally collected datasets.
 
 ---
 
