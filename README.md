@@ -1,12 +1,12 @@
 # real-world-advertisement-blocker
 
-https://github.com/user-attachments/assets/rendered-bounding-box.mp4
+https://github.com/ibrahimcaj/real-world-advertisement-blocker/blob/main/docs/videos/rendered-bounding-box.mp4
 
-*Bounding box overlay — detected advertisements highlighted with labelled boxes*
+_Bounding box overlay, detected advertisements highlighted with labelled boxes_
 
-https://github.com/user-attachments/assets/rendered-blur.mp4
+https://github.com/ibrahimcaj/real-world-advertisement-blocker/blob/main/docs/videos/rendered-blur.mp4
 
-*Blur mode — detected advertisement regions replaced with Gaussian blur*
+_Blur mode, detected advertisement regions replaced with Gaussian blur_
 
 This project develops an AI-based system for detecting real-world advertisements in images and video streams and automatically filtering them by blurring the detected advertisement regions.
 
@@ -323,14 +323,14 @@ The training curves for the segmentation experiment are shown below:
 
 ### Structure
 
-- `frame_detection_app/` — the Next.js web app. `app/` is the page, `components/` holds the video detector UI, `backend/` holds the Python FastAPI server and its startup script
-- `models/` — trained model weights (`bounding_best.pt`). Not committed if large; place files here manually
-- `notebooks/` — two Colab training notebooks: `yolo_detection.ipynb` trains the YOLO bounding box model, `keypoint_model.ipynb` trains the ResNet50 corner keypoint model
-- `datasets/` — raw training data split into `additional/` (real-world photos with labels) and `synthetic/` (Unreal Engine renders with auto-generated labels)
-- `unreal_data_generator/` — the Unreal Engine project used to generate synthetic training data; `source_code/` is the C++ plugin, `unreal_project/` has blueprints and render targets, `scripts/` has a label validation utility
-- `docs/` — training graphs (loss curves, detection metrics)
-- `videos/` — sample output videos showing bounding box and blur render modes
-- `PIPELINE.md` — full architecture and methodology writeup
+- `frame_detection_app/` - the Next.js web app. `app/` is the page, `components/` holds the video detector UI, `backend/` holds the Python FastAPI server and its startup script
+- `models/` - trained model weights (`bounding_best.pt`). Not committed if large; place files here manually
+- `notebooks/` - two Colab training notebooks: `yolo_detection.ipynb` trains the YOLO bounding box model, `keypoint_model.ipynb` trains the ResNet50 corner keypoint model
+- `datasets/` - raw training data split into `additional/` (real-world photos with labels) and `synthetic/` (Unreal Engine renders with auto-generated labels)
+- `unreal_data_generator/` - the Unreal Engine project used to generate synthetic training data; `source_code/` is the C++ plugin, `unreal_project/` has blueprints and render targets, `scripts/` has a label validation utility
+- `docs/` - training graphs (loss curves, detection metrics)
+- `videos/` - sample output videos showing bounding box and blur render modes
+- `PIPELINE.md` - full architecture and methodology writeup
 
 ### Setup
 
